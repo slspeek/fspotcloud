@@ -7,13 +7,17 @@ connection = sqlite.connect('photos.db')
 cursor = connection.cursor()
 
 
-def get_first_id():
-  cursor.execute('SELECT id, time FROM photos ORDER BY time LIMIT 1 OFFSET 0')
-  row = cursor.fetchall()[0]
-  return row[0]
+def get_photo_row(id):
+  id = `id`
+  cursor.execute('SELECT id, time, uri FROM photos WHERE id=? ORDER BY time ', (id,))
+  row = cursor.fetchone()
+  return row[0], row[1], row[2]
+
+def get_tag_list(parent_id=None):
+  pass
  
 def main():
-  print get_first_id()
+  print get_photo_row(2455)
 
 if __name__ == "__main__":
       main()

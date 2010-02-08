@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from dblayer import get_first_id
+from objectlayer import get_photo_object
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 
@@ -11,6 +11,6 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
 # Create server
 server = SimpleXMLRPCServer(("localhost", 8000),
               requestHandler=RequestHandler)
-server.register_function(get_first_id)
+server.register_function(get_photo_object)
 server.serve_forever()
 
