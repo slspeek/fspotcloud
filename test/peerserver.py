@@ -9,7 +9,7 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
   rpc_paths = ('/RPC2',)
 
 # Create server
-server = SimpleXMLRPCServer(("localhost", 8000),
+server = SimpleXMLRPCServer(("0.0.0.0", 8000),
               requestHandler=RequestHandler)
 server.register_function(get_photo_object)
 server.serve_forever()
