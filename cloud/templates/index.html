@@ -1,0 +1,10 @@
+Hoi
+{% if photo_list %}
+<ul>
+  {% for photo in photo_list %}
+  <li>{{ photo.id }} {{ photos.time }}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No photos are available.</p>
+{% endif %}
