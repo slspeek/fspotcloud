@@ -2,7 +2,8 @@ Hoi
 {% if photo_list %}
 <ul>
   {% for photo in photo_list %}
-  <li>{{ photo.id }} {{ photos.time }}</li>
+  <li>{{ photo.id }} {{ photo.time }}  <img src='/image/{{photo.key}}'>
+  </li>
   {% endfor %}
 </ul>
 {% else %}
