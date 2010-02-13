@@ -9,8 +9,6 @@ from StringIO import StringIO
 
 def index(request):
   photo_list = Photo.objects.all()
-  if photo_list == []:
-    photo_list = None
   return render_to_response('index.html', {'photo_list': photo_list})
 
 def detail(request, photo_id):
