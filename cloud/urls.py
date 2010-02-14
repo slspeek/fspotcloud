@@ -17,6 +17,8 @@ from django.conf.urls.defaults import *
 urlpatterns = patterns('',
   (r'^cloud/$', 'webfront.views.index'),
   (r'^import/$', 'webfront.models.import_tags'),
+  (r'^import/(?P<tag_id>\d+)$', 'webfront.models.import_tag_data'),
+  (r'^clear$', 'webfront.models.clear_meta_data'),
   (r'^image/(?P<pic_key>\w+)$', 'webfront.views.get_image'),
   (r'^cloud/(?P<photo_id>\d+)$', 'webfront.views.detail'),
   (r'^admin/', include('django.contrib.admin.urls')),

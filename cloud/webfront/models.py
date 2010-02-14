@@ -2,6 +2,8 @@ from appengine_django.models import BaseModel
 from django.http import HttpResponse
 from google.appengine.ext import db
 from xmlrpc import get_my_server_proxy
+from datetime import datetime
+import logging
 
 # Create your models here.
 class PhotosStore(BaseModel):
@@ -36,7 +38,7 @@ class Tags(BaseModel):
   representants = db.ListProperty(int)
 
 
-def clear_meta_data():
+def clear_meta_data(request=None):
   for pm in  PhotosMeta.all():
     pm.delete()
   for tag in Tags.all():
@@ -54,22 +56,26 @@ def import_tags(request):
     t.id = int(tag[0])
     t.name = tag[1]
     t.category_id = int(tag[2])  
-    t.loaded = False
+    t.list_loaded = False
     t.put()
   return HttpResponse("Imported tags")
 
-def import_tag_data(tag_id):
-  tag = Tags.gql('WHERE id = :1', str(tag_id)).fetch_one()
+def import_tag_data(request=None, tag_id="51"):
+  tag_id = int(tag_id)
+  tag = Tags.gql('WHERE id = :1', tag_id).fetch(1)
+  logging.info(str(tag))
   peerserver = get_my_server_proxy()
-  photo_list = peerserver.get_photo_list_for_tag()
+  photo_list = peerserver.get_photo_list_for_tag(tag_id)
   for photo in photo_list:
     pm = PhotosMeta()
     pm.id = int(photo[0])
-    pm.time = datetime.fromtimestamp(photo.time)
+    pm.time = datetime.fromtimestamp(photo[1])
     pm.put()
-    tag.photo_list.append(pm.id)
-  tag.loaded = True
-  tag.put()
+    logging.debug("PhotosMeta stored %s" % pm.id)
+    #tag.photo_list.append(pm.id)
+  #tag.list_loaded = True
+  #tag.put()
+  return HttpResponse("Imported tagi data")
   
 def load_image(photo_id):
   image = None
@@ -79,7 +85,7 @@ def load_image(photo_id):
   return image
 
 def get_image_by_id(photo_id):
-  image = PhotosStore.gql("WHERE id = :1", str(photo_id)).fetch_one()
+  image = PhotosStore.gql("WHERE id = :1", str(photo_id)).fetch(1)
   return image
  
 
