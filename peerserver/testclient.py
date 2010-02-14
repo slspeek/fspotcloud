@@ -9,7 +9,7 @@ s = xmlrpclib.ServerProxy('http://localhost')
 id = int(sys.argv[1])
 resolution = int(sys.argv[2]), int(sys.argv[3])
 print id, resolution
-_, time, jpeg =  s.get_photo_object(id, resolution)
+jpeg =  s.get_photo_object(id, resolution)
 reader = StringIO.StringIO(jpeg)
 image = Image.open(reader)
 image.show()

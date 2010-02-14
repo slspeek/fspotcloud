@@ -15,6 +15,7 @@ def get_photo_row(id):
   return row[0], row[1], row[2]
 
 def get_tag_list(parent_id=None):
+  print "Called"
   tag_list = []
   cursor.execute('SELECT id, name, category_id FROM tags ORDER BY id')
   for row in cursor:
@@ -23,9 +24,9 @@ def get_tag_list(parent_id=None):
 
 def get_photo_list_for_tag(tag_id):
   photo_list = []
-  cursor.execute('SELECT photo_id, tag_id FROM photo_tags WHERE tag_id=? ', (`tag_id`,))
+  cursor.execute('SELECT photos.id, photos.time, photo_tags.tag_id FROM photo_tags, photos WHERE tag_id=? AND photos.id=photo_tags.photo_id ', (`tag_id`,))
   for row in cursor:
-    photo_list.append((row[0], row[1]))
+    photo_list.append((row[0], row[1], row[2]))
   return photo_list
 
 def get_photo_object(id, size=(20,10)):
@@ -36,8 +37,7 @@ def get_photo_object(id, size=(20,10)):
   im.save(buf, format= 'JPEG')
   jpeg= buf.getvalue()
   buf.close()
-  #print type(jpeg)
-  return id, time, Binary(jpeg)
+  return Binary(jpeg)
 
 if __name__ == "__main__":
       main()
