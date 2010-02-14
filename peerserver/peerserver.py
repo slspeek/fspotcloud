@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-from objectlayer import get_photo_object
-from dblayer import get_tag_list, get_photo_list_for_tag
+from dblayer import get_tag_list, get_photo_list_for_tag, get_photo_object
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 
