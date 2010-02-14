@@ -43,6 +43,7 @@ def clear_meta_data(request=None):
     pm.delete()
   for tag in Tags.all():
     tag.delete()
+  return HttpResponse("Meta data cleared")
 
 def import_time_line():
   pass
@@ -62,7 +63,7 @@ def import_tags(request):
 
 def import_tag_data(request=None, tag_id="51"):
   tag_id = int(tag_id)
-  tag = Tags.gql('WHERE id = :1', tag_id).fetch(1)
+  tag = Tags.gql('WHERE id = :1', tag_id).fetch(1)[0]
   logging.info(str(tag))
   peerserver = get_my_server_proxy()
   photo_list = peerserver.get_photo_list_for_tag(tag_id)
@@ -72,9 +73,9 @@ def import_tag_data(request=None, tag_id="51"):
     pm.time = datetime.fromtimestamp(photo[1])
     pm.put()
     logging.debug("PhotosMeta stored %s" % pm.id)
-    #tag.photo_list.append(pm.id)
-  #tag.list_loaded = True
-  #tag.put()
+    tag.photo_list.append(pm.id)
+  tag.list_loaded = True
+  tag.put()
   return HttpResponse("Imported tagi data")
   
 def load_image(photo_id):
