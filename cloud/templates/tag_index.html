@@ -1,0 +1,8 @@
+<html>
+<ul>
+  {% for tag in tags %}
+  <li><a href='/import/{{ tag.id }}'>{{ tag.name }}</a>
+  </li>
+  {% endfor %}
+</ul>
+</html>

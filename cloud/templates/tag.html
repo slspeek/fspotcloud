@@ -1,0 +1,14 @@
+<html>
+
+<table>
+{% for row in pics %}
+<tr>
+{% for image in row %}
+<td>
+    <img src='/image/{{image}}'>
+</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+</html>

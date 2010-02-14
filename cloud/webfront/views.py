@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-from webfront.models import PhotosStore, PhotosMeta, Tags
+from webfront.models import PhotosStore, PhotosMeta, Tags, load_image
 from xmlrpc import get_my_server_proxy
 import logging
 from datetime import datetime
@@ -19,9 +19,9 @@ def detail(request, photo_id):
   key = save(photo_id, time, jpeg)
   return HttpResponse("Server Proxy Loaded.\nYou're looking at photo %s.\nTime: %s" % (photo_id, time))
  
-def get_image(request, pic_key):
+def get_image(request, pic_id):
   response = HttpResponse(content_type='image/jpeg')
-  image = db.get(pic_key)
+  image = load_image(int(pic_id))
   response.write(image.jpeg)
   logging.info("Served image %s" % image.id)
   return response

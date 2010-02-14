@@ -1,10 +1,12 @@
 from appengine_django.models import BaseModel
+from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from google.appengine.ext import db
 from xmlrpc import get_my_server_proxy
 from datetime import datetime
 import logging
 
+NUMBER_OF_COLUMNS = 6
 # Create your models here.
 class PhotosStore(BaseModel):
   id = db.IntegerProperty('F-Spot ID')
@@ -37,6 +39,10 @@ class Tags(BaseModel):
   photo_list = db.ListProperty(int)
   representants = db.ListProperty(int)
 
+def clear_photo_store(request=None):
+  for ps in PhotosStore.all():
+    ps.delete()
+  return HttpResponse("Cleared photo store")
 
 def clear_meta_data(request=None):
   for pm in  PhotosMeta.all():
@@ -59,7 +65,8 @@ def import_tags(request):
     t.category_id = int(tag[2])  
     t.list_loaded = False
     t.put()
-  return HttpResponse("Imported tags")
+  tag_list = Tags.all().order('name')
+  return render_to_response('tag_index.html', { 'tags': tag_list })
 
 def import_tag_data(request=None, tag_id="51"):
   tag_id = int(tag_id)
@@ -76,7 +83,17 @@ def import_tag_data(request=None, tag_id="51"):
     tag.photo_list.append(pm.id)
   tag.list_loaded = True
   tag.put()
-  return HttpResponse("Imported tagi data")
+
+  table = []
+  cnt = 0
+  for pic_id in tag.photo_list:
+    if cnt % NUMBER_OF_COLUMNS == 0:
+      row = []
+      table.append(row)
+    row.append(pic_id)
+    cnt += 1
+
+  return render_to_response('tag.html', {'pics': table})
   
 def load_image(photo_id):
   image = None
@@ -86,12 +103,12 @@ def load_image(photo_id):
   return image
 
 def get_image_by_id(photo_id):
-  image = PhotosStore.gql("WHERE id = :1", str(photo_id)).fetch(1)
+  image = PhotosStore.gql("WHERE id = :1", photo_id).fetch(1)[0]
   return image
  
 
 def has_image(photo_id):
-  count = PhotosStore.gql("WHERE id = :1", str(photo_id)).count()
+  count = PhotosStore.gql("WHERE id = :1", photo_id).count()
   return count > 0 
 
   
