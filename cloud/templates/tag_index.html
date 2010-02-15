@@ -1,8 +1,13 @@
 <html>
 <ul>
   {% for tag in tags %}
-  <li><a href='/import/{{ tag.id }}'>{{ tag.name }}</a>
+  {% if tag.list_loaded %}
+  <li><a href='/tag/{{ tag.id }}'>{{ tag.name }}</a>
   </li>
+  {% else %}
+  <li><a href='/import/{{ tag.id }}'>{{ tag.name }} (import)</a>
+  </li>
+  {% endif %}
   {% endfor %}
 </ul>
 </html>

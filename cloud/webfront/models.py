@@ -65,13 +65,19 @@ def import_tags(request):
     t.category_id = int(tag[2])  
     t.list_loaded = False
     t.put()
+  return HttpResponse('The tags were imported')
+
+def tag_index(request):
   tag_list = Tags.all().order('name')
   return render_to_response('tag_index.html', { 'tags': tag_list })
 
+def load_tag_by_id(tag_id):
+  tag = Tags.gql('WHERE id = :1', tag_id).fetch(1)[0]
+  return tag
+
 def import_tag_data(request=None, tag_id="51"):
   tag_id = int(tag_id)
-  tag = Tags.gql('WHERE id = :1', tag_id).fetch(1)[0]
-  logging.info(str(tag))
+  tag = load_tag_by_id(tag_id)
   peerserver = get_my_server_proxy()
   photo_list = peerserver.get_photo_list_for_tag(tag_id)
   for photo in photo_list:
@@ -83,18 +89,23 @@ def import_tag_data(request=None, tag_id="51"):
     tag.photo_list.append(pm.id)
   tag.list_loaded = True
   tag.put()
+  return HttpResponse('Import <a href="/tag/%s">tag</a> successfully' % tag_id)
 
-  table = []
-  cnt = 0
-  for pic_id in tag.photo_list:
-    if cnt % NUMBER_OF_COLUMNS == 0:
-      row = []
-      table.append(row)
-    row.append(pic_id)
-    cnt += 1
-
-  return render_to_response('tag.html', {'pics': table})
   
+def tag_page(request, tag_id):
+  tag_id = int(tag_id)
+  tag = load_tag_by_id(tag_id)
+  table = []
+  if tag.list_loaded:
+    cnt = 0
+    for pic_id in tag.photo_list:
+      if cnt % NUMBER_OF_COLUMNS == 0:
+        row = []
+        table.append(row)
+      row.append(pic_id)
+      cnt += 1
+  return render_to_response('tag.html', {'pics': table,  'name': tag.name })
+
 def load_image(photo_id):
   image = None
   if not has_image(photo_id):
