@@ -28,7 +28,7 @@ def get_photo_list_for_tag(tag_id):
   cursor.execute('SELECT photos.id, photos.time, photo_tags.tag_id FROM photo_tags, photos WHERE tag_id=? AND photos.id=photo_tags.photo_id ', (`tag_id`,))
   for row in cursor:
     photo_list.append((row[0], row[1], row[2]))
-  print photo_list
+  #print photo_list
   return photo_list
 
 def get_photo_object(id, size=(20,10)):

@@ -1,24 +1,22 @@
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-from webfront.models import PhotosStore, PhotosMeta, Tags, load_image
-from xmlrpc import get_my_server_proxy
+from webfront.models import *
 import logging
-from datetime import datetime
 from google.appengine.ext import db
-from StringIO import StringIO
+
+NUMBER_OF_COLUMNS = 6
 
 def index(request):
   photo_list = PhotosStore.all().order('id')
   return render_to_response('index.html', {'photo_list': photo_list})
 
-def detail(request, photo_id):
-  photo = None
-  logging.info("We got called with: %s" % photo_id)
-  peerserver = get_my_server_proxy()
-  photo_id, time, jpeg  = peerserver.get_photo_object(int(photo_id), (500,400))
-  key = save(photo_id, time, jpeg)
-  return HttpResponse("Server Proxy Loaded.\nYou're looking at photo %s.\nTime: %s" % (photo_id, time))
- 
+def ping_page(request):
+  if ping():
+    msg = "Peerserver is up"
+  else:
+    msg = "Peerserver is down"
+  return HttpResponse(msg)
+
 def get_image(request, pic_id):
   response = HttpResponse(content_type='image/jpeg')
   image = load_image(int(pic_id))
@@ -26,12 +24,21 @@ def get_image(request, pic_id):
   logging.info("Served image %s" % image.id)
   return response
 
+def tag_index(request):
+  tag_list = Tags.all().order('name')
+  return render_to_response('tag_index.html', { 'tags': tag_list })
 
-def save(photo_id, time, jpeg):
-  photo = PhotosStore()
-  photo.id = photo_id
-  photo.time = datetime.fromtimestamp(time)
-  photo.jpeg = db.Blob(jpeg.data)
-  photo_key = photo.put()
-  logging.info("Stored photo %s with key %s" % (photo_id, photo_key))
-  return photo_key
+  
+def tag_page(request, tag_id):
+  tag_id = int(tag_id)
+  tag = load_tag_by_id(tag_id)
+  table = []
+  if tag.list_loaded:
+    cnt = 0
+    for pic_id in tag.photo_list:
+      if cnt % NUMBER_OF_COLUMNS == 0:
+        row = []
+        table.append(row)
+      row.append(pic_id)
+      cnt += 1
+  return render_to_response('tag.html', {'pics': table,  'name': tag.name })

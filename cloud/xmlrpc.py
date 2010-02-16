@@ -9,3 +9,5 @@ def get_server_proxy(host_url):
 
 def get_my_server_proxy():
   return get_server_proxy("http://speek.xs4all.nl")
+
+

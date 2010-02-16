@@ -3,10 +3,11 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from google.appengine.ext import db
 from xmlrpc import get_my_server_proxy
+import xmlrpclib
 from datetime import datetime
+from StringIO import StringIO
 import logging
 
-NUMBER_OF_COLUMNS = 6
 # Create your models here.
 class PhotosStore(BaseModel):
   id = db.IntegerProperty('F-Spot ID')
@@ -39,20 +40,31 @@ class Tags(BaseModel):
   photo_list = db.ListProperty(int)
   representants = db.ListProperty(int)
 
+def ping():
+  peerserver = get_my_server_proxy()
+  try:
+    peerserver.ping()
+  except xmlrpclib.ProtocolError:
+    return False
+  return True
+
 def clear_photo_store(request=None):
+  logging.info('Starting to clear the PhotosStore')
   for ps in PhotosStore.all():
     ps.delete()
+  logging.info('PhotosStore cleared')
   return HttpResponse("Cleared photo store")
 
 def clear_meta_data(request=None):
+  logging.info('Starting to clear the PhotosMeta')
   for pm in  PhotosMeta.all():
     pm.delete()
+  logging.info('PhotosMeta cleared')
+  logging.info('Starting to clear the Tags')
   for tag in Tags.all():
     tag.delete()
+  logging.info('Tags cleared')
   return HttpResponse("Meta data cleared")
-
-def import_time_line():
-  pass
 
 def import_tags(request):
   clear_meta_data()
@@ -66,10 +78,6 @@ def import_tags(request):
     t.list_loaded = False
     t.put()
   return HttpResponse('The tags were imported')
-
-def tag_index(request):
-  tag_list = Tags.all().order('name')
-  return render_to_response('tag_index.html', { 'tags': tag_list })
 
 def load_tag_by_id(tag_id):
   tag = Tags.gql('WHERE id = :1', tag_id).fetch(1)[0]
@@ -91,20 +99,6 @@ def import_tag_data(request=None, tag_id="51"):
   tag.put()
   return HttpResponse('Import <a href="/tag/%s">tag</a> successfully' % tag_id)
 
-  
-def tag_page(request, tag_id):
-  tag_id = int(tag_id)
-  tag = load_tag_by_id(tag_id)
-  table = []
-  if tag.list_loaded:
-    cnt = 0
-    for pic_id in tag.photo_list:
-      if cnt % NUMBER_OF_COLUMNS == 0:
-        row = []
-        table.append(row)
-      row.append(pic_id)
-      cnt += 1
-  return render_to_response('tag.html', {'pics': table,  'name': tag.name })
 
 def load_image(photo_id):
   image = None
@@ -116,14 +110,12 @@ def load_image(photo_id):
 def get_image_by_id(photo_id):
   image = PhotosStore.gql("WHERE id = :1", photo_id).fetch(1)[0]
   return image
- 
 
 def has_image(photo_id):
   count = PhotosStore.gql("WHERE id = :1", photo_id).count()
   return count > 0 
-
   
-def save(photo_id, jpeg):
+def save_image(photo_id, jpeg):
   photo = PhotosStore()
   photo.id = photo_id
   photo.jpeg = db.Blob(jpeg.data)
@@ -135,5 +127,5 @@ def retrieve_photo_from_peer(photo_id):
   photo_id = int(photo_id)
   peerserver = get_my_server_proxy()
   jpeg  = peerserver.get_photo_object(photo_id, (200,150))
-  save(photo_id, jpeg)
+  save_image(photo_id, jpeg)
 
