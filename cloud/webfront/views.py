@@ -30,6 +30,8 @@ def get_image(request, pic_id):
 def tag_index(request):
   tag_list = Tags.all().order('name')
   peer_up = get_value('peer_up')
+  if peer_up == 'False':
+    peer_up = []
   return render_to_response('tag_index.html', { 'tags': tag_list, 'peer_up': peer_up })
 
   
