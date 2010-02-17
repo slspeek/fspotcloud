@@ -3,7 +3,6 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from google.appengine.ext import db
 from xmlrpc import get_my_server_proxy
-import xmlrpclib
 from datetime import datetime
 from StringIO import StringIO
 import logging
@@ -39,14 +38,6 @@ class Tags(BaseModel):
   #peerdb = db.ReferenceProperty(db.PeerDatabases)
   photo_list = db.ListProperty(int)
   representants = db.ListProperty(int)
-
-def ping():
-  peerserver = get_my_server_proxy()
-  try:
-    peerserver.ping()
-  except xmlrpclib.ProtocolError:
-    return False
-  return True
 
 def clear_photo_store(request=None):
   logging.info('Starting to clear the PhotosStore')

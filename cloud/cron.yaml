@@ -1,0 +1,5 @@
+cron:
+- description: Ping the peerserver
+  url: /ping_cron/
+  schedule: every 10 minutes
+
