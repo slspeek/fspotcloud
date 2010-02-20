@@ -24,6 +24,7 @@ urlpatterns = patterns('',
   (r'^clear_store$', 'webfront.models.clear_photo_store'),
   (r'^image/(?P<pic_id>\w+)$', 'webfront.views.get_image'),
   (r'^cloud/(?P<photo_id>\d+)$', 'webfront.views.detail'),
+  (r'^retrieve/(?P<photo_id>\d+)$', 'webfront.tasks.retrieve'),
   (r'^ping/$','webfront.views.ping_page'),
   (r'^ping_cron/$','webfront.tasks.ping_cron'),
 )

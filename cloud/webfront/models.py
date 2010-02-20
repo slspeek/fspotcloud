@@ -1,3 +1,5 @@
+from google.appengine.api.labs import taskqueue
+from google.appengine.api.labs.taskqueue import Task
 from appengine_django.models import BaseModel
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
@@ -88,6 +90,11 @@ def import_tag_data(request=None, tag_id="51"):
     tag.photo_list.append(pm.id)
   tag.list_loaded = True
   tag.put()
+# Set out Tasks for retrieving the images slowly
+  for photo_id in tag.photo_list:
+    url = "/retrieve/%s" % photo_id
+    task = Task(url=url)
+    task.add(queue_name='peer-queue')
   return HttpResponse('Import <a href="/tag/%s">tag</a> successfully' % tag_id)
 
 
