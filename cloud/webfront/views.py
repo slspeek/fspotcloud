@@ -8,6 +8,8 @@ import xmlrpc
 from webfront.bigvar import get_value
 
 NUMBER_OF_COLUMNS = 6
+NUMBER_OF_ROWS = 4
+NUMBER_OF_PHOTOS = NUMBER_OF_COLUMNS * NUMBER_OF_ROWS
 
 def index(request):
   photo_list = PhotosStore.all().order('id')
@@ -35,16 +37,34 @@ def tag_index(request):
   return render_to_response('tag_index.html', { 'tags': tag_list, 'peer_up': peer_up })
 
   
-def tag_page(request, tag_id):
+def tag_page(request, tag_id, page_id):
   tag_id = int(tag_id)
+  page_id = int(page_id)
   tag = load_tag_by_id(tag_id)
+  start = (page_id - 1) * NUMBER_OF_PHOTOS
+  end = start + NUMBER_OF_PHOTOS
+  logging.info("Slicing from %s to %s" % (start, end))
+  photos = tag.photo_list[start:end]
   table = []
-  if tag.list_loaded:
-    cnt = 0
-    for pic_id in tag.photo_list:
-      if cnt % NUMBER_OF_COLUMNS == 0:
-        row = []
-        table.append(row)
-      row.append(pic_id)
-      cnt += 1
-  return render_to_response('tag.html', {'pics': table,  'name': tag.name })
+  cnt = 0
+  for pic_id in photos:
+    if cnt % NUMBER_OF_COLUMNS == 0:
+      row = []
+      table.append(row)
+    row.append(pic_id)
+    cnt += 1
+  page_list = get_pages(tag)
+  return render_to_response('tag.html', {'pics': table,  'name': tag.name, 'pages': page_list })
+ 
+def get_pages(tag):
+  no_of_photos = len(tag.photo_list)
+  no_of_pages = no_of_photos // NUMBER_OF_PHOTOS 
+  if not no_of_photos % NUMBER_OF_COLUMNS == 0:
+    no_of_photos += 1
+  page_list = []
+  for page_id in range(0, no_of_pages):
+    start = page_id * NUMBER_OF_PHOTOS + 1
+    end = start + NUMBER_OF_PHOTOS - 1
+    page_list.append(("%s - %s" % (start, end), "/tag/%s/%s" % (tag.id, page_id + 1)))
+  return page_list
+

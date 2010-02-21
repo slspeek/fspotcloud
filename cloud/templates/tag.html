@@ -13,5 +13,11 @@
 </tr>
 {% endfor %}
 </table>
+<center>
+{% for page, url in pages %}
+<a href="{{ url }}">{{ page }}</a>
+{% endfor %}
+</center>
 <center><a href="/tag">Tag index</a></center></body>
+
 </html>

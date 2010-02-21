@@ -15,7 +15,7 @@ h1
 <ul>
   {% for tag in tags %}
   {% if tag.list_loaded %}
-  <li><a href='/tag/{{ tag.id }}'>{{ tag.name }}</a>
+  <li><a href='/tag/{{ tag.id }}/1'>{{ tag.name }}</a>
   </li>
   {% else %}
   <li><a href='/import/{{ tag.id }}'>{{ tag.name }} (import)</a>
