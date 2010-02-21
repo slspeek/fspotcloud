@@ -9,6 +9,8 @@ from datetime import datetime
 from StringIO import StringIO
 import logging
 
+MAX_FETCH = 50
+
 # Create your models here.
 class PhotosStore(BaseModel):
   id = db.IntegerProperty('F-Spot ID')
@@ -80,7 +82,43 @@ def import_tag_data(request=None, tag_id="51"):
   tag_id = int(tag_id)
   tag = load_tag_by_id(tag_id)
   peerserver = get_my_server_proxy()
-  photo_list = peerserver.get_photo_list_for_tag(tag_id)
+  no_of_parts = calculate_no_of_parts(tag_id, peerserver)
+  for part in range(0, no_of_parts):
+    offset = part * MAX_FETCH
+    limit = MAX_FETCH
+    url = "/import_tag/%s/%s/%s" % (tag_id, offset, limit)
+    task = Task(url=url)
+    task.add(queue_name='peer-queue')
+  tag.list_loaded = True
+  tag.put()
+  return HttpResponse('Import <a href="/tag/%s/1">tag</a> successfully' % tag_id)
+
+def calculate_no_of_parts(tag_id, peerserver):
+  no_of_photos = peerserver.get_photo_count_for_tag(tag_id)
+  no_of_parts = no_of_photos // MAX_FETCH
+  if not no_of_photos % MAX_FETCH == 0:
+    no_of_parts += 1
+  return no_of_parts
+
+
+def import_tag_data_part(request, tag_id, offset, limit):
+  tag_id = int(tag_id)
+  offset = int(offset)
+  limit = int(limit)
+  tag = load_tag_by_id(tag_id)
+  peerserver = get_my_server_proxy()
+  photo_list = peerserver.get_photo_list_for_tag(tag_id, offset, limit)
+  handle_photo_list_for_tag(photo_list, tag)
+  msg = "import tag data %s offset %s limit %s succeeded" % (tag_id, offset, limit)
+  logging.info(msg)
+# Set out Tasks for retrieving the images slowly
+  for photo_id, _, _ in photo_list:
+    url = "/retrieve/%s" % photo_id
+    task = Task(url=url)
+    task.add(queue_name='peer-queue')
+  return HttpResponse(msg)
+
+def handle_photo_list_for_tag(photo_list, tag):
   for photo in photo_list:
     pm = PhotosMeta()
     pm.id = int(photo[0])
@@ -88,16 +126,7 @@ def import_tag_data(request=None, tag_id="51"):
     pm.put()
     logging.debug("PhotosMeta stored %s" % pm.id)
     tag.photo_list.append(pm.id)
-  tag.list_loaded = True
-  tag.put()
-# Set out Tasks for retrieving the images slowly
-  for photo_id in tag.photo_list:
-    url = "/retrieve/%s" % photo_id
-    task = Task(url=url)
-    task.add(queue_name='peer-queue')
-  return HttpResponse('Import <a href="/tag/%s">tag</a> successfully' % tag_id)
-
-
+  tag.put() 
 def load_image(photo_id):
   image = None
   if not has_image(photo_id):

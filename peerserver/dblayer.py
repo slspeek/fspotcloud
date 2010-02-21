@@ -22,14 +22,19 @@ def get_tag_list(parent_id=None):
     tag_list.append((row[0], row[1], row[2]))
   return tag_list
 
-def get_photo_list_for_tag(tag_id):
+def get_photo_list_for_tag(tag_id, offset=0, limit=10):
   print 'TagId', tag_id, type(tag_id)
   photo_list = []
-  cursor.execute('SELECT photos.id, photos.time, photo_tags.tag_id FROM photo_tags, photos WHERE tag_id=? AND photos.id=photo_tags.photo_id ', (`tag_id`,))
+  cursor.execute('SELECT photos.id, photos.time, photo_tags.tag_id FROM photo_tags, photos WHERE tag_id=? AND photos.id=photo_tags.photo_id LIMIT ? OFFSET ?', (`tag_id`,`limit`,`offset`))
   for row in cursor:
     photo_list.append((row[0], row[1], row[2]))
   #print photo_list
   return photo_list
+
+def get_photo_count_for_tag(tag_id):
+  cursor.execute('SELECT COUNT(photos.id) FROM photo_tags, photos WHERE tag_id=? AND photos.id=photo_tags.photo_id ', (`tag_id`,))
+  row = cursor.fetchone()
+  return row[0]
 
 def get_photo_object(id, size=(20,10)):
   id, time, uri = get_photo_row(id)

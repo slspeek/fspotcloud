@@ -1,5 +1,5 @@
 queue:
 - name: peer-queue
-  rate: 30/m
+  rate: 20/m
 - name: background-processing
   rate: 5/s
