@@ -5,7 +5,7 @@ import xmlrpclib
 import StringIO
 from PIL import Image
 
-s = xmlrpclib.ServerProxy('http://localhost')
+s = xmlrpclib.ServerProxy('http://localhost:8000')
 id = int(sys.argv[1])
 resolution = int(sys.argv[2]), int(sys.argv[3])
 print id, resolution
