@@ -7,7 +7,7 @@ from xmlrpc import ping
 import xmlrpc
 from webfront.bigvar import get_value
 
-NUMBER_OF_COLUMNS = 6
+NUMBER_OF_COLUMNS = 4
 NUMBER_OF_ROWS = 4
 NUMBER_OF_PHOTOS = NUMBER_OF_COLUMNS * NUMBER_OF_ROWS
 
@@ -59,12 +59,15 @@ def tag_page(request, tag_id, page_id):
 def get_pages(tag):
   no_of_photos = len(tag.photo_list)
   no_of_pages = no_of_photos // NUMBER_OF_PHOTOS 
-  if not no_of_photos % NUMBER_OF_COLUMNS == 0:
-    no_of_photos += 1
+  if not no_of_photos % NUMBER_OF_PHOTOS == 0:
+    no_of_pages += 1
   page_list = []
-  for page_id in range(0, no_of_pages):
+  for page_id in range(0, no_of_pages-1):
     start = page_id * NUMBER_OF_PHOTOS + 1
     end = start + NUMBER_OF_PHOTOS - 1
     page_list.append(("%s - %s" % (start, end), "/tag/%s/%s" % (tag.id, page_id + 1)))
+  start = (no_of_pages - 1) * NUMBER_OF_PHOTOS + 1
+  end = no_of_photos
+  page_list.append(("%s - %s" % (start, end), "/tag/%s/%s" % (tag.id, no_of_pages)))
   return page_list
 
