@@ -9,12 +9,12 @@ def ping_cron(request):
   set_value('peer_up', str(peer_up))
   return HttpResponse("ping cron")
 
-def retrieve(request, photo_id):
+def retrieve(request, photo_id, type):
   photo_id = int(photo_id)
-  if not has_image(photo_id):
-    retrieve_photo_from_peer(photo_id)
-    msg = "Photo %s retrieved" % photo_id
+  if not has_image(photo_id, type):
+    retrieve_photo_from_peer(photo_id, type)
+    msg = "Photo %s retrieved of type %s" % (photo_id, type)
   else:
-    msg = "Photo %s was already loaded" % photo_id
+    msg = "Photo %s of type %s was already loaded" % (photo_id, type)
   logging.info(msg)
   return HttpResponse(msg)

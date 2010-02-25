@@ -22,11 +22,16 @@ def ping_page(request):
     msg = "Peerserver is down"
   return HttpResponse(msg)
 
-def get_image(request, pic_id):
+def get_image(request, pic_id, type):
   response = HttpResponse(content_type='image/jpeg')
-  image = load_image(pic_id)
-  response.write(image.jpeg)
-  logging.info("Served image %s" % image.key().name())
+  image = load_image(pic_id, type)
+  if type == LARGE:
+    image_data = image.jpeg
+  else:
+    image_data = image.thumb
+  response.write(image_data)
+  logging.info("Served image %s of type %s" % (image.key().name(),
+                                                type))
   return response
 
 def tag_index(request):

@@ -11,6 +11,8 @@ import logging
 
 MAX_FETCH = 50
 
+LARGE = "1"
+THUMB = "2"
 # Create your models here.
 class PhotosStore(BaseModel):
   thumb = db.BlobProperty('Thumb data')
@@ -118,7 +120,11 @@ def import_tag_data_part(request, tag_id, offset, limit):
   logging.info(msg)
 # Set out Tasks for retrieving the images slowly
   for photo_id, _, _ in photo_list:
-    url = "/retrieve/%s" % photo_id
+    url = "/retrieve/%s/%s" % (photo_id, THUMB)
+    task = Task(url=url)
+    task.add(queue_name='peer-queue')
+  for photo_id, _, _ in photo_list:
+    url = "/retrieve/%s/%s" % (photo_id, LARGE)
     task = Task(url=url)
     task.add(queue_name='peer-queue')
   return HttpResponse(msg)
@@ -131,26 +137,41 @@ def handle_photo_list_for_tag(photo_list, tag):
     tag.photo_list.append(pm.key().name())
   tag.put() 
 
-def load_image(photo_id):
-  image = None
-  if not has_image(photo_id):
-    retrieve_photo_from_peer(photo_id)
+def load_image(photo_id, type):
+  if not has_image(photo_id, type):
+    retrieve_photo_from_peer(photo_id, type)
   image = PhotosStore.get_by_key_name(photo_id)
   return image
 
-def has_image(photo_id):
-  image = PhotosStore.get_by_key_name(`photo_id`)
-  return image != None
+def has_image(photo_id, type):
+  logging.info("has_image %s %s"  % (photo_id, type))
+  image = PhotosStore.get_by_key_name(str(photo_id))
+  if image == None:
+    logging.info("has_image None image==None %s %s"  % (photo_id, type))
+    return False
+  if type == LARGE:
+    logging.info("has_image type==LARGE %s %s : %s" % (photo_id, type, bool(image.jpeg)))
+    return image.jpeg
+  logging.info("has_image type==THUMB %s %s" % (photo_id, type))
+  return image.thumb
 
-def save_image(photo_id, jpeg):
-  photo = PhotosStore(key_name=str(photo_id))
-  photo.jpeg = db.Blob(jpeg.data)
+def save_image(photo_id, jpeg, type=LARGE):
+  photo = PhotosStore.get_or_insert(key_name=`photo_id`)
+  photo_data = db.Blob(jpeg.data)
+  if type == LARGE:
+    photo.jpeg = photo_data
+  else: 
+    photo.thumb = photo_data
   photo_key = photo.put()
   logging.info("Stored photo %s with key %s" % (photo_id, photo_key))
 
-def retrieve_photo_from_peer(photo_id):
+def retrieve_photo_from_peer(photo_id, type):
   photo_id = int(photo_id)
   peerserver = get_my_server_proxy()
-  jpeg  = peerserver.get_photo_object(photo_id, (200,150))
-  save_image(photo_id, jpeg)
+  if type == LARGE:
+    dim = (800,600)
+  else:
+    dim = (200,150)
+  jpeg  = peerserver.get_photo_object(photo_id, dim)
+  save_image(photo_id, jpeg, type)
 
