@@ -38,9 +38,8 @@ def tag_index(request):
 
   
 def tag_page(request, tag_id, page_id):
-  tag_id = int(tag_id)
   page_id = int(page_id)
-  tag = load_tag_by_id(tag_id)
+  tag = Tags.get_by_key_name(tag_id)
   start = (page_id - 1) * NUMBER_OF_PHOTOS
   end = start + NUMBER_OF_PHOTOS
   logging.info("Slicing from %s to %s" % (start, end))
