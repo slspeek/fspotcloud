@@ -34,20 +34,34 @@ class Tags(BaseModel):
   name = db.StringProperty('Name')
   list_loaded = db.BooleanProperty('Photo List was loaded')
   #peerdb = db.ReferenceProperty(db.PeerDatabases)
-  photo_list = db.ListProperty(int)
-  representants = db.ListProperty(int)
+  photo_list = db.StringListProperty()
+  representants = db.StringListProperty()
 
 def clear_photo_store(request=None):
-  logging.info('Starting to clear the PhotosStore')
+  logging.info('Starting to schedule the clearing of  the PhotosStore')
   for ps in PhotosStore.all():
-    ps.delete()
-  logging.info('PhotosStore cleared')
+    task = Task(url="/clear_photo/%s" % ps.key().name())
+    task.add(queue_name='background-processing')
+  logging.info('PhotosStore erasure scheduled')
   return HttpResponse("Cleared photo store")
 
-def clear_meta_data(request=None):
-  logging.info('Starting to clear the PhotosMeta')
-  for pm in  PhotosMeta.all():
+def clear_photo_meta(request, photo_id):
+  pm = PhotosMeta.get_by_key_name(photo_id)
+  if pm != None:
     pm.delete()
+  return HttpResponse("Deleted meta: %s" % photo_id)
+
+def clear_photo(request, photo_id):
+  ps = PhotosStore.get_by_key_name(photo_id)
+  if ps != None:
+    ps.delete()
+  return HttpResponse("Deleted store: %s" % photo_id)
+
+def clear_meta_data(request=None):
+  logging.info('Starting to schedule the clearing of the PhotosMeta')
+  for pm in  PhotosMeta.all():
+    task = Task(url="/clear_photo_meta/%s" % pm.key().name())
+    task.add(queue_name='background-processing')
   logging.info('PhotosMeta cleared')
   logging.info('Starting to clear the Tags')
   for tag in Tags.all():
@@ -69,7 +83,6 @@ def import_tags(request):
   return HttpResponse('The tags were imported')
 
 def import_tag_data(request=None, tag_id="51"):
-  tag_id = int(tag_id)
   tag = Tags.get_by_key_name(tag_id)
   peerserver = get_my_server_proxy()
   no_of_parts = calculate_no_of_parts(tag_id, peerserver)
@@ -81,10 +94,12 @@ def import_tag_data(request=None, tag_id="51"):
     task.add(queue_name='peer-queue')
   tag.list_loaded = True
   tag.put()
-  return HttpResponse('Import <a href="/tag/%s/1">tag</a> successfully' % tag_id)
+  msg = 'Import of <a href="/tag/%s/1">tag</a> successfully scheduled, the work has started in the background.' % tag.key().name()
+  logging.info(msg)
+  return HttpResponse(msg)
 
 def calculate_no_of_parts(tag_id, peerserver):
-  no_of_photos = peerserver.get_photo_count_for_tag(tag_id)
+  no_of_photos = peerserver.get_photo_count_for_tag(int(tag_id))
   no_of_parts = no_of_photos // MAX_FETCH
   if not no_of_photos % MAX_FETCH == 0:
     no_of_parts += 1
@@ -113,27 +128,25 @@ def handle_photo_list_for_tag(photo_list, tag):
     pm = PhotosMeta(key_name=photo[0])
     pm.time = datetime.fromtimestamp(photo[1])
     pm.put()
-    logging.debug("PhotosMeta stored %s" % pm.id)
-    tag.photo_list.append(pm.id)
+    tag.photo_list.append(pm.key().name())
   tag.put() 
 
 def load_image(photo_id):
   image = None
   if not has_image(photo_id):
     retrieve_photo_from_peer(photo_id)
-  image = PhotoStore.get_by_key_name(photo_id)
+  image = PhotosStore.get_by_key_name(photo_id)
   return image
 
 def has_image(photo_id):
-  image = PhotosStore.get_by_key_name(photo_id)
+  image = PhotosStore.get_by_key_name(`photo_id`)
   return image != None
 
 def save_image(photo_id, jpeg):
-  photo = PhotosStore(key_name=photo_id)
+  photo = PhotosStore(key_name=str(photo_id))
   photo.jpeg = db.Blob(jpeg.data)
   photo_key = photo.put()
   logging.info("Stored photo %s with key %s" % (photo_id, photo_key))
-  return photo.id
 
 def retrieve_photo_from_peer(photo_id):
   photo_id = int(photo_id)
