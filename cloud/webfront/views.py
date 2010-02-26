@@ -61,7 +61,7 @@ def tag_page(request, tag_id, page_id):
     row.append(pic_id)
     cnt += 1
   page_list = get_pages(tag)
-  return render_to_response('tag.html', {'pics': table,  'name': tag.name, 'pages': page_list })
+  return render_to_response('tag.html', {'pics': table,  'name': tag.name, 'pages': page_list, 'tag_id': tag_id, 'page_id': page_id })
  
 def get_pages(tag):
   no_of_photos = len(tag.photo_list)
@@ -78,3 +78,11 @@ def get_pages(tag):
   page_list.append(("%s - %s" % (start, end), "/tag/%s/%s" % (tag.key().name(), no_of_pages)))
   return page_list
 
+def photo_page(request, tag_id, page_id, photo_id):
+  tag = Tags.get_by_key_name(tag_id)
+  source = "/tag/%s/%s" % (tag_id, page_id)
+  return render_to_response('photo.html',
+                      {'image': photo_id,
+                       'name': tag.name,
+                       'source': source })
+  

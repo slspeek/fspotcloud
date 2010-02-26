@@ -8,7 +8,9 @@
 <tr>
 {% for image in row %}
 <td>
+  <a href="/tag/{{ tag_id }}/{{ page_id }}/{{ image }}">
     <img src='/image/{{image}}/2'>
+  </a>
 </td>
 {% endfor %}
 </tr>

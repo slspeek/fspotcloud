@@ -169,7 +169,7 @@ def retrieve_photo_from_peer(photo_id, type):
   photo_id = int(photo_id)
   peerserver = get_my_server_proxy()
   if type == LARGE:
-    dim = (1024,768)
+    dim = (640,480)
   else:
     dim = (200,150)
   jpeg  = peerserver.get_photo_object(photo_id, dim)

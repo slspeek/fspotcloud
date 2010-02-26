@@ -1,7 +1,8 @@
 body
-{background-color: silver;}
+{background-color: IndianRed;
+ font-family: arial;}
 h1
-{color: purple;text-align: center; font-weight: bold;}
+{color: Indigo; }
 p
 {text-align:center;}
 ul {text-align: center;
