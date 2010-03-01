@@ -15,6 +15,9 @@ handlers:
   script: $PYTHON_LIB/google/appengine/ext/admin
   login: admin
 
+- url: /xmlrpc/.*
+  script: xmlrpcserver/myserver.py
+
 - url: /.*
   script: main.py
   login: admin
