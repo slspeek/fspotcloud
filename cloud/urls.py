@@ -13,6 +13,11 @@
 # limitations under the License.
 
 from django.conf.urls.defaults import *
+from webfront.rpcserver import XMLRPC
+from webfront.models import save_image
+
+rpcserver = XMLRPC()
+rpcserver.register('save_image', save_image)
 
 urlpatterns = patterns('',
   (r'^cloud/$', 'webfront.views.index'),
@@ -31,4 +36,5 @@ urlpatterns = patterns('',
   (r'^retrieve/(?P<photo_id>\d+)/(?P<type>\d)$', 'webfront.tasks.retrieve'),
   (r'^ping/$','webfront.views.ping_page'),
   (r'^ping_cron/$','webfront.tasks.ping_cron'),
+  url(r'^xmlrpc/$', rpcserver.view, name="xmlrpc"),
 )

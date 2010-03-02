@@ -13,6 +13,7 @@ MAX_FETCH = 50
 
 LARGE = "1"
 THUMB = "2"
+
 # Create your models here.
 class PhotosStore(BaseModel):
   thumb = db.BlobProperty('Thumb data')
@@ -163,7 +164,8 @@ def save_image(photo_id, jpeg, type=LARGE):
   else: 
     photo.thumb = photo_data
   photo_key = photo.put()
-  logging.info("Stored photo %s with key %s" % (photo_id, photo_key))
+  logging.info("Stored photo %s with key %s of type %s" % (photo_id, photo_key, type))
+  return "test"
 
 def retrieve_photo_from_peer(photo_id, type):
   photo_id = int(photo_id)
@@ -174,4 +176,3 @@ def retrieve_photo_from_peer(photo_id, type):
     dim = (200,150)
   jpeg  = peerserver.get_photo_object(photo_id, dim)
   save_image(photo_id, jpeg, type)
-

@@ -16,7 +16,7 @@ handlers:
   login: admin
 
 - url: /xmlrpc/.*
-  script: xmlrpcserver/myserver.py
+  script: main.py
 
 - url: /.*
   script: main.py
