@@ -9,17 +9,17 @@ connection = sqlite.connect('photos.db')
 cursor = connection.cursor()
 
 def get_photo_row(id):
-  id = `id`
+  id = str(id)
   cursor.execute('SELECT id, time, uri FROM photos WHERE id=? ORDER BY time ', (id,))
   row = cursor.fetchone()
-  return str(row[0]), row[1], row[2]
+  return tuple(row)
 
 def get_tag_list(parent_id=None):
   print "Called"
   tag_list = []
   cursor.execute('SELECT id, name, category_id FROM tags ORDER BY id')
   for row in cursor:
-    tag_list.append((str(row[0]), row[1], str(row[2])))
+    tag_list.append(tuple(row))
   return tag_list
 
 def get_photo_list_for_tag(tag_id, offset=0, limit=10):
@@ -45,17 +45,13 @@ def get_photo_object(id, size=(20,10)):
   jpeg= buf.getvalue()
   buf.close()
   return Binary(jpeg)
-
-if __name__ == "__main__":
-      main()
  
 def main():
-  print get_photo_row(2455)
+  print get_photo_row(5713)
   print get_tag_list()
   print get_photo_list_for_tag(2)
   print get_photo_list_for_tag(51)
-  i, time, jpeg = get_photo_object(1)
-  print time
+  jpeg = get_photo_object(5713, (400,300))
   reader = StringIO.StringIO(jpeg)
   image = Image.open(reader)
   image.show()

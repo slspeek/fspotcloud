@@ -13,11 +13,15 @@
 # limitations under the License.
 
 from django.conf.urls.defaults import *
+from webfront.models import save_image, save_tag, has_image
+from webfront.command import get_command
 from webfront.rpcserver import XMLRPC
-from webfront.models import save_image
 
 rpcserver = XMLRPC()
 rpcserver.register('save_image', save_image)
+rpcserver.register('has_image', has_image)
+rpcserver.register('save_tag', save_tag)
+rpcserver.register('get_command', get_command)
 
 urlpatterns = patterns('',
   (r'^cloud/$', 'webfront.views.index'),

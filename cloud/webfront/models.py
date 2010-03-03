@@ -7,6 +7,7 @@ from google.appengine.ext import db
 from xmlrpc import get_my_server_proxy
 from datetime import datetime
 from StringIO import StringIO
+from webfront.command import schedule
 import logging
 
 MAX_FETCH = 50
@@ -74,16 +75,17 @@ def clear_meta_data(request=None):
 
 def import_tags(request):
   clear_meta_data()
-  peerserver = get_my_server_proxy()
-  tag_list = peerserver.get_tag_list()
-  for tag in tag_list:
-    key_name = tag[0]
-    t = Tags(key_name=key_name)
-    t.name = tag[1]
-    t.category_id = tag[2]  
-    t.list_loaded = False
-    t.put()
-  return HttpResponse('The tags were imported')
+  schedule('push_tags', [])
+  return HttpResponse('The tags import is given to C&amp;C')
+
+def save_tag(id, name, category):
+  logging.info("Entering save_tag: %s %s %s" % (id, name, category))
+  t = Tags(key_name=str(id))
+  t.name = name
+  t.category_id = str(category)
+  t.list_loaded = False
+  t.put()
+  return "string"
 
 def import_tag_data(request=None, tag_id="51"):
   tag = Tags.get_by_key_name(tag_id)
@@ -120,14 +122,8 @@ def import_tag_data_part(request, tag_id, offset, limit):
   msg = "import tag data %s offset %s limit %s succeeded" % (tag_id, offset, limit)
   logging.info(msg)
 # Set out Tasks for retrieving the images slowly
-  for photo_id, _, _ in photo_list:
-    url = "/retrieve/%s/%s" % (photo_id, THUMB)
-    task = Task(url=url)
-    task.add(queue_name='peer-queue')
-  for photo_id, _, _ in photo_list:
-    url = "/retrieve/%s/%s" % (photo_id, LARGE)
-    task = Task(url=url)
-    task.add(queue_name='peer-queue')
+  schedule('push_tag', [str(tag_id), "1"])
+  schedule('push_tag', [str(tag_id), "2"])
   return HttpResponse(msg)
 
 def handle_photo_list_for_tag(photo_list, tag):
@@ -145,15 +141,11 @@ def load_image(photo_id, type):
   return image
 
 def has_image(photo_id, type):
-  logging.info("has_image %s %s"  % (photo_id, type))
   image = PhotosStore.get_by_key_name(str(photo_id))
   if image == None:
-    logging.info("has_image None image==None %s %s"  % (photo_id, type))
     return False
   if type == LARGE:
-    logging.info("has_image type==LARGE %s %s : %s" % (photo_id, type, bool(image.jpeg)))
     return image.jpeg
-  logging.info("has_image type==THUMB %s %s" % (photo_id, type))
   return image.thumb
 
 def save_image(photo_id, jpeg, type=LARGE):
@@ -166,6 +158,7 @@ def save_image(photo_id, jpeg, type=LARGE):
   photo_key = photo.put()
   logging.info("Stored photo %s with key %s of type %s" % (photo_id, photo_key, type))
   return "test"
+
 
 def retrieve_photo_from_peer(photo_id, type):
   photo_id = int(photo_id)

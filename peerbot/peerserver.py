@@ -12,7 +12,7 @@ def ping():
   return 'Up'
 
 # Create server
-server = SimpleXMLRPCServer(("0.0.0.0", 8000),
+server = SimpleXMLRPCServer(("0.0.0.0", 80),
               requestHandler=RequestHandler)
 server.register_function(get_photo_object)
 server.register_function(get_tag_list)
