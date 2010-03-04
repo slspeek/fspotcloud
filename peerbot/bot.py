@@ -23,13 +23,15 @@ def main():
     cmdlist = s.get_command()
     if cmdlist:
       cmd, args = cmdlist
-      msg = 'Action recieved: %s %s' % (cmd, args)
+      print 'Action recieved: %s %s' % (cmd, args)
+      no_action = False
       dispath(cmd,args)
     else:
-      msg = 'No action at this time'
-    logging.info(msg)
-    print msg
-    time.sleep(10)
+      print 'No action at this time'
+      no_action = True
+    if no_action:
+      print 'Sleeping for 10 seconds'
+      time.sleep(10)
 
 if __name__ == '__main__':
   main()

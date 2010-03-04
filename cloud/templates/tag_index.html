@@ -13,6 +13,9 @@ a,h1 { color: BlanchedAlmond; text-align: center }
 <!-- Comment by Hazel Bathgate -->
 <h1>F-Spot Cloud</h1>
 <ul>
+  {% if not tags %}
+ <p>You are starting fresh. Click <a href='/import'>here</a> to import the labels.</p>  
+  {% endif %}
   {% for key, name, list_loaded in tags %}
   {% if list_loaded %}
   <li><a href='/tag/{{ key }}/1'>{{ name }}</a>

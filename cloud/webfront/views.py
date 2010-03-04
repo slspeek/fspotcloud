@@ -6,8 +6,8 @@ from google.appengine.ext import db
 from webfront.bigvar import get_value
 from webfront.util import ceil_divide
 
-NUMBER_OF_COLUMNS = 4
-NUMBER_OF_ROWS = 4
+NUMBER_OF_COLUMNS = 3
+NUMBER_OF_ROWS = 3
 NUMBER_OF_PHOTOS = NUMBER_OF_COLUMNS * NUMBER_OF_ROWS
 
 def ping_page(request):
@@ -33,7 +33,7 @@ def tag_index(request):
   tag_list = Tag.all().order('name')
   tags = []
   for t in tag_list:
-    tags.append((t.key().name(), t.name, t.list_loaded))
+    tags.append((t.key().name(), t.name, t.import_issued))
   peer_up = get_value('peer_up')
   if peer_up == 'False':
     peer_up = []

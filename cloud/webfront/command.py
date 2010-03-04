@@ -3,6 +3,7 @@ from google.appengine.ext import db
 from datetime import datetime
 import logging
 
+
 # Create your models here.
 class Command(BaseModel):
   cmd = db.StringProperty('Command', required=True)
@@ -25,4 +26,5 @@ def get_command():
     return [cmd, args]
   return []
   
-
+def ping():
+  return True
