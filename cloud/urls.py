@@ -13,15 +13,20 @@
 # limitations under the License.
 
 from django.conf.urls.defaults import *
-from webfront.models import save_image, save_tag, has_image
+from webfront.models import save_image, save_tag, has_image, handle_photo_for_tag
 from webfront.command import get_command
 from webfront.rpcserver import XMLRPC
+
+def test(arg):
+  logging.info(str(arg))
 
 rpcserver = XMLRPC()
 rpcserver.register('save_image', save_image)
 rpcserver.register('has_image', has_image)
 rpcserver.register('save_tag', save_tag)
 rpcserver.register('get_command', get_command)
+rpcserver.register('handle_photo_for_tag', handle_photo_for_tag)
+rpcserver.register('test', test)
 
 urlpatterns = patterns('',
   (r'^cloud/$', 'webfront.views.index'),
@@ -32,7 +37,7 @@ urlpatterns = patterns('',
   (r'^tag/(?P<tag_id>\d+)/(?P<page_id>\d+)/(?P<photo_id>\d+)$', 'webfront.views.photo_page'),
   (r'^tag/$', 'webfront.views.tag_index'),
   (r'^clear_meta$', 'webfront.models.clear_meta_data'),
-  (r'^clear_store$', 'webfront.models.clear_photo_store'),
+  (r'^clear_store$', 'webfront.models.clear_all_photo'),
   (r'^clear_photo/(?P<photo_id>\d+)$', 'webfront.models.clear_photo'),
   (r'^clear_photo_meta/(?P<photo_id>\d+)$', 'webfront.models.clear_photo_meta'),
   (r'^image/(?P<pic_id>\w+)/(?P<type>\d)$', 'webfront.views.get_image'),

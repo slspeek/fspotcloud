@@ -6,33 +6,38 @@ import StringIO
 from xmlrpclib import Binary
 
 connection = sqlite.connect('photos.db')
-cursor = connection.cursor()
 
 def get_photo_row(id):
+  cursor = connection.cursor()
   id = str(id)
   cursor.execute('SELECT id, time, uri FROM photos WHERE id=? ORDER BY time ', (id,))
   row = cursor.fetchone()
   return tuple(row)
 
 def get_tag_list(parent_id=None):
-  print "Called"
+  cursor = connection.cursor()
   tag_list = []
   cursor.execute('SELECT id, name, category_id FROM tags ORDER BY id')
   for row in cursor:
-    tag_list.append(tuple(row))
+    tag_id = row[0]
+    photo_count = get_photo_count_for_tag(tag_id)
+    tag_list.append((row[0], row[1], row[2], photo_count))
   return tag_list
 
 def get_photo_list_for_tag(tag_id, offset=0, limit=10):
   print 'TagId', tag_id, type(tag_id)
+  cursor = connection.cursor()
   photo_list = []
-  cursor.execute('SELECT photos.id, photos.time, photo_tags.tag_id FROM photo_tags, photos WHERE tag_id=? AND photos.id=photo_tags.photo_id LIMIT ? OFFSET ?', (`tag_id`,`limit`,`offset`))
+  cursor.execute('SELECT photos.id, photos.time, photos.description, photo_tags.tag_id FROM photo_tags, photos WHERE tag_id=? AND photos.id=photo_tags.photo_id LIMIT ? OFFSET ?',
+                map(str,(tag_id,limit,offset)))
   for row in cursor:
-    photo_list.append((str(row[0]), row[1], str(row[2])))
+    photo_list.append([str(row[0]), row[1], row[2], str(row[3])])
   #print photo_list
   return photo_list
 
 def get_photo_count_for_tag(tag_id):
-  cursor.execute('SELECT COUNT(photos.id) FROM photo_tags, photos WHERE tag_id=? AND photos.id=photo_tags.photo_id ', (`tag_id`,))
+  cursor = connection.cursor()
+  cursor.execute('SELECT COUNT(photos.id) FROM photo_tags, photos WHERE tag_id=? AND photos.id=photo_tags.photo_id ', (str(tag_id),))
   row = cursor.fetchone()
   return row[0]
 

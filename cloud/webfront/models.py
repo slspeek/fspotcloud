@@ -1,13 +1,11 @@
 from google.appengine.api.labs import taskqueue
 from google.appengine.api.labs.taskqueue import Task
 from appengine_django.models import BaseModel
-from django.shortcuts import render_to_response
-from django.http import HttpResponse
 from google.appengine.ext import db
-from xmlrpc import get_my_server_proxy
+from django.http import HttpResponse
 from datetime import datetime
-from StringIO import StringIO
 from webfront.command import schedule
+from webfront.util import ceil_divide
 import logging
 
 MAX_FETCH = 50
@@ -16,140 +14,120 @@ LARGE = "1"
 THUMB = "2"
 
 # Create your models here.
-class PhotosStore(BaseModel):
+class Photo(BaseModel):
   thumb = db.BlobProperty('Thumb data')
   jpeg = db.BlobProperty('Jpeg data')
-
-class PhotosMeta(BaseModel):
   time = db.DateTimeProperty('Photo date')
- 
-class Settings(BaseModel):
-  pass
-
-class State(BaseModel):
-  value = db.StringProperty('Value')
-
-class PeerDatabases(BaseModel):
   desc = db.StringProperty('Description')
-  uri = db.StringProperty('Peer Server URI')
 
-class Tags(BaseModel):
+class Tag(BaseModel):
   category_id = db.StringProperty('Parent Tag')
   name = db.StringProperty('Name')
+  count = db.IntegerProperty('Number of photos')
   list_loaded = db.BooleanProperty('Photo List was loaded')
-  #peerdb = db.ReferenceProperty(db.PeerDatabases)
-  photo_list = db.StringListProperty()
-  representants = db.StringListProperty()
+  import_issued = db.BooleanProperty('Loading of the meta data was issued')
+  photo_list = db.ListProperty(str)
+  representants = db.ListProperty(db.Key)
 
-def clear_photo_store(request=None):
-  logging.info('Starting to schedule the clearing of  the PhotosStore')
-  for ps in PhotosStore.all():
-    task = Task(url="/clear_photo/%s" % ps.key().name())
+def clear_all_photo_blobs(request=None):
+  logging.info('Starting to schedule the clearing of the Photo blobs')
+  for p in Photo.all():
+    task = Task(url="/clear_photo_blobs/%s" % p.key().name())
     task.add(queue_name='background-processing')
-  logging.info('PhotosStore erasure scheduled')
-  return HttpResponse("Cleared photo store")
+  msg = 'Photo blobs erasure scheduled'
+  logging.info(msg)
+  return HttpResponse(msg)
 
-def clear_photo_meta(request, photo_id):
-  pm = PhotosMeta.get_by_key_name(photo_id)
-  if pm != None:
-    pm.delete()
-  return HttpResponse("Deleted meta: %s" % photo_id)
+def clear_photo_blobs(request, photo_id):
+  p = Photo.get_by_key_name(photo_id)
+  if p != None:
+    p.jpeg = None
+    p.thumb = None
+  msg = 'Deleted photo blobs for: %s' % photo_id
+  logging.info(msg)
+  return HttpResponse(msg)
 
 def clear_photo(request, photo_id):
-  ps = PhotosStore.get_by_key_name(photo_id)
-  if ps != None:
-    ps.delete()
-  return HttpResponse("Deleted store: %s" % photo_id)
+  p = Photo.get_by_key_name(photo_id)
+  if p != None:
+    p.delete()
+  return HttpResponse("Deleted photo: %s" % photo_id)
 
-def clear_meta_data(request=None):
-  logging.info('Starting to schedule the clearing of the PhotosMeta')
-  for pm in  PhotosMeta.all():
-    task = Task(url="/clear_photo_meta/%s" % pm.key().name())
+
+def clear_all_photo(request=None):
+  logging.info('Starting to schedule the clearing of the Photo')
+  for p in  Photo.all():
+    task = Task(url="/clear_photo/%s" % p.key().name())
     task.add(queue_name='background-processing')
-  logging.info('PhotosMeta cleared')
-  logging.info('Starting to clear the Tags')
-  for tag in Tags.all():
+  logging.info('Photo cleared')
+  logging.info('Starting to clear the Tag')
+  for tag in Tag.all():
     tag.delete()
-  logging.info('Tags cleared')
+  logging.info('Tag cleared')
   return HttpResponse("Meta data cleared")
 
 def import_tags(request):
-  clear_meta_data()
   schedule('push_tags', [])
   return HttpResponse('The tags import is given to C&amp;C')
 
-def save_tag(id, name, category):
+def save_tag(id, name, category, count):
   logging.info("Entering save_tag: %s %s %s" % (id, name, category))
-  t = Tags(key_name=str(id))
+  t = Tag(key_name=str(id))
   t.name = name
   t.category_id = str(category)
+  t.count = count
   t.list_loaded = False
   t.put()
-  return "string"
+  return 0
 
-def import_tag_data(request=None, tag_id="51"):
-  tag = Tags.get_by_key_name(tag_id)
-  peerserver = get_my_server_proxy()
-  no_of_parts = calculate_no_of_parts(tag_id, peerserver)
-  for part in range(0, no_of_parts):
+def import_tag_data(request, tag_id):
+  tag = Tag.get_by_key_name(str(tag_id))
+  part_count = calculate_part_count(tag)
+  for part in range(0, part_count):
     offset = part * MAX_FETCH
     limit = MAX_FETCH
-    url = "/import_tag/%s/%s/%s" % (tag_id, offset, limit)
-    task = Task(url=url)
-    task.add(queue_name='peer-queue')
-  tag.list_loaded = True
+    schedule('push_tag_data', map(str,[tag_id, offset, limit]))
+  tag.import_issued = True
   tag.put()
-  msg = 'Import of <a href="/tag/%s/1">tag</a> successfully scheduled, the work has started in the background.' % tag.key().name()
+  msg = 'Import of <a href="/tag/%s/1">tag</a> successfully scheduled in control' % tag.key().name()
   logging.info(msg)
+  schedule('push_tag', [str(tag_id), "2"])
+  schedule('push_tag', [str(tag_id), "1"])
   return HttpResponse(msg)
 
-def calculate_no_of_parts(tag_id, peerserver):
-  no_of_photos = peerserver.get_photo_count_for_tag(int(tag_id))
-  no_of_parts = no_of_photos // MAX_FETCH
-  if not no_of_photos % MAX_FETCH == 0:
-    no_of_parts += 1
+def calculate_part_count(tag):
+  no_of_parts = ceil_divide(tag.count, MAX_FETCH)
   return no_of_parts
 
-
-def import_tag_data_part(request, tag_id, offset, limit):
-  offset = int(offset)
-  limit = int(limit)
-  tag = Tags.get_by_key_name(tag_id)
-  tag_id = int(tag_id)
-  peerserver = get_my_server_proxy()
-  photo_list = peerserver.get_photo_list_for_tag(tag_id, offset, limit)
-  handle_photo_list_for_tag(photo_list, tag)
-  msg = "import tag data %s offset %s limit %s succeeded" % (tag_id, offset, limit)
-  logging.info(msg)
-# Set out Tasks for retrieving the images slowly
-  schedule('push_tag', [str(tag_id), "1"])
-  schedule('push_tag', [str(tag_id), "2"])
-  return HttpResponse(msg)
-
-def handle_photo_list_for_tag(photo_list, tag):
-  for photo in photo_list:
-    pm = PhotosMeta(key_name=photo[0])
-    pm.time = datetime.fromtimestamp(photo[1])
-    pm.put()
-    tag.photo_list.append(pm.key().name())
+def handle_photo_for_tag(id, time, desc, tag_id):
+  logging.info('handle_phtoto')
+  tag = Tag.get_by_key_name(str(tag_id))
+  p = Photo.get_or_insert(str(id))
+  p.time = datetime.fromtimestamp(time)
+  p.desc = desc
+  p.put()
+  tag.photo_list.append(p.key().name())
   tag.put() 
+  return 0
 
 def load_image(photo_id, type):
   if not has_image(photo_id, type):
-    retrieve_photo_from_peer(photo_id, type)
-  image = PhotosStore.get_by_key_name(photo_id)
+    schedule('push_photo', [photo_id, type])
+  image = Photo.get_by_key_name(photo_id)
   return image
 
 def has_image(photo_id, type):
-  image = PhotosStore.get_by_key_name(str(photo_id))
+  logging.info('Entering has_image')
+  image = Photo.get_by_key_name(str(photo_id))
+  logging.info('has_image')
   if image == None:
     return False
   if type == LARGE:
-    return image.jpeg
-  return image.thumb
+    return bool(image.jpeg)
+  return bool(image.thumb)
 
 def save_image(photo_id, jpeg, type=LARGE):
-  photo = PhotosStore.get_or_insert(key_name=`photo_id`)
+  photo = Photo.get_or_insert(key_name=str(photo_id))
   photo_data = db.Blob(jpeg.data)
   if type == LARGE:
     photo.jpeg = photo_data
@@ -157,15 +135,5 @@ def save_image(photo_id, jpeg, type=LARGE):
     photo.thumb = photo_data
   photo_key = photo.put()
   logging.info("Stored photo %s with key %s of type %s" % (photo_id, photo_key, type))
-  return "test"
+  return 0
 
-
-def retrieve_photo_from_peer(photo_id, type):
-  photo_id = int(photo_id)
-  peerserver = get_my_server_proxy()
-  if type == LARGE:
-    dim = (640,480)
-  else:
-    dim = (200,150)
-  jpeg  = peerserver.get_photo_object(photo_id, dim)
-  save_image(photo_id, jpeg, type)

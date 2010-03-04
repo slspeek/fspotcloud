@@ -2,9 +2,11 @@ body
 {background-color: IndianRed;
  font-family: arial;}
 h1
-{color: Indigo; }
+{color: Indigo; 
+ text-align: center;}
 p
-{text-align:center;}
-ul {text-align: center;
+{text-align: center;}
+ul
+{text-align: center;
  list-style-type: none; }
 

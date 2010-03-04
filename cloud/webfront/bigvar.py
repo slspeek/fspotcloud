@@ -1,4 +1,8 @@
-from webfront.models import State
+from appengine_django.models import BaseModel
+from google.appengine.ext import db
+
+class State(BaseModel):
+  value = db.StringProperty('Value')
 
 def set_value(var_name, value):
   if has_var(var_name):

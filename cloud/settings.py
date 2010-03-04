@@ -105,3 +105,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'webfront',
 )
+
+#Settings for F-Spot Cloud
+
+SERVER_URL="http://localhost:8000/xmlrpc/"
+#SERVER_URL="http://fspotcloud.appspot.com/xmlrpc/"
+
