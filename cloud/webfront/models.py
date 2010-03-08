@@ -29,6 +29,14 @@ class Tag(BaseModel):
   photo_list = db.ListProperty(str)
   representants = db.ListProperty(db.Key)
 
+def clear_all_tags(request=None):
+  logging.info('Clearing all tags')
+  for t in Tag.all():
+    t.delete()
+  msg = 'Finished clearing all tags'
+  logging.info(msg)
+  return HttpResponse(msg) 
+
 def clear_all_photo_blobs(request=None):
   logging.info('Starting to schedule the clearing of the Photo blobs')
   for p in Photo.all():
@@ -68,7 +76,7 @@ def clear_all_photo(request=None):
 
 def import_tags(request):
   schedule('push_tags', [])
-  return HttpResponse('The tags import is given to C&amp;C')
+  return HttpResponse('The tags import is given to control')
 
 def save_tag(id, name, category, count):
   logging.info("Entering save_tag: %s %s %s" % (id, name, category))
@@ -91,8 +99,6 @@ def import_tag_data(request, tag_id):
   tag.put()
   msg = 'Import of <a href="/tag/%s/1">tag</a> successfully scheduled in control' % tag.key().name()
   logging.info(msg)
-  schedule('push_tag', [str(tag_id), "2"])
-  schedule('push_tag', [str(tag_id), "1"])
   return HttpResponse(msg)
 
 def calculate_part_count(tag):
@@ -106,8 +112,11 @@ def handle_photo_for_tag(id, time, desc, tag_id):
   p.time = datetime.fromtimestamp(time)
   p.desc = desc
   p.put()
-  tag.photo_list.append(p.key().name())
+  key = p.key().name()
+  tag.photo_list.append(key)
   tag.put() 
+  schedule('push_photo', [key, THUMB])
+  schedule('push_photo', [key, LARGE])
   return 0
 
 def load_image(photo_id, type):

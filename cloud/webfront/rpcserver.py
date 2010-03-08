@@ -12,12 +12,14 @@ class XMLRPC(object):
     def __init__(self):
         self.handlers = {}
 
-    def register(self, xmlrpcname, func):
-        self.handlers[xmlrpcname] = func
+    def register(self, func, exported_name=None):
+        if exported_name == None:
+          exported_name = func.__name__
+        self.handlers[exported_name] = func
 
     def view(self, request):
         "view function for handling an XML-RPC request"
-        logging.info("Entering view")
+        logging.debug("Entering view")
         if request.method != "POST":
             return HttpResponseNotAllowed("POST")
 
@@ -33,7 +35,7 @@ class XMLRPC(object):
             result = METHOD_NOT_SUPPORTED
         else:
             try:
-                logging.info("Just before trying the function")
+                logging.debug("Just before trying the function")
                 result = self.handlers[method](*args)
             except Fault, fault:
                 result = fault

@@ -21,12 +21,8 @@ def test(arg):
   logging.info(str(arg))
 
 rpcserver = XMLRPC()
-rpcserver.register('save_image', save_image)
-rpcserver.register('has_image', has_image)
-rpcserver.register('save_tag', save_tag)
-rpcserver.register('get_command', get_command)
-rpcserver.register('handle_photo_for_tag', handle_photo_for_tag)
-rpcserver.register('test', test)
+for func in [save_image, has_image, save_tag, get_command, handle_photo_for_tag, test]:
+  rpcserver.register(func)
 
 urlpatterns = patterns('',
   (r'^cloud/$', 'webfront.views.index'),
@@ -36,7 +32,7 @@ urlpatterns = patterns('',
   (r'^tag/(?P<tag_id>\d+)/(?P<page_id>\d+)$', 'webfront.views.tag_page'),
   (r'^tag/(?P<tag_id>\d+)/(?P<page_id>\d+)/(?P<photo_id>\d+)$', 'webfront.views.photo_page'),
   (r'^tag/$', 'webfront.views.tag_index'),
-  (r'^clear_meta$', 'webfront.models.clear_meta_data'),
+  (r'^clear_all_tags$', 'webfront.models.clear_all_tags'),
   (r'^clear_store$', 'webfront.models.clear_all_photo'),
   (r'^clear_photo/(?P<photo_id>\d+)$', 'webfront.models.clear_photo'),
   (r'^clear_photo_meta/(?P<photo_id>\d+)$', 'webfront.models.clear_photo_meta'),

@@ -14,7 +14,10 @@ register = {'push_tags': push_tags,
 def dispath(cmd, args):
   func = register[cmd]
   if func:
-    func(*args)
+    try:
+      func(*args)
+    except:
+      print "Excepted an fault running %s %s" % (cmd,args)
   else:
     print "Do not know how to dispatch %s " % cmd
 
