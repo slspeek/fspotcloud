@@ -113,7 +113,7 @@ def handle_photo_for_tag(id, time, desc, tag_id):
   p.desc = desc
   p.put()
   key = p.key().name()
-  if not key in ta.photo_list:
+  if not key in tag.photo_list:
     tag.photo_list.append(key)
   tag.put() 
   schedule('push_photo', [key, THUMB])
