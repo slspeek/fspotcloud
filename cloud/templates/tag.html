@@ -1,6 +1,8 @@
-<html>
-<head><link rel="stylesheet" type="text/css" href="/static/style.css" /></head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{% block content %}
 <center><h1>{{ name }}</h1></center>
 <center>
 <table border="1">
@@ -8,7 +10,7 @@
 <tr>
 {% for image in row %}
 <td>
-  <a href="/tag/{{ tag_id }}/{{ page_id }}/{{ image }}">
+  <a rel="lightbox[group]" href="/image/{{ image }}/1">
     <img src='/image/{{image}}/2'>
   </a>
 </td>
@@ -22,6 +24,4 @@
 <a href="{{ url }}">{{ page }}</a>
 {% endfor %}
 </center>
-<center><a href="/tag">Tag index</a></center></body>
-
-</html>
+{% endblock %}
