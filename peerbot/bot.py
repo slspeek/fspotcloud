@@ -23,18 +23,21 @@ def dispath(cmd, args):
 
 def main():
   while(True):
-    cmdlist = s.get_command()
-    if cmdlist:
-      cmd, args = cmdlist
-      print 'Action recieved: %s %s' % (cmd, args)
-      no_action = False
-      dispath(cmd,args)
-    else:
-      print 'No action at this time'
-      no_action = True
-    if no_action:
-      print 'Sleeping for 10 seconds'
-      time.sleep(10)
+    try:
+      cmdlist = s.get_command()
+      if cmdlist:
+        cmd, args = cmdlist
+        print 'Action recieved: %s %s' % (cmd, args)
+        no_action = False
+        dispath(cmd,args)
+      else:
+        print 'No action at this time'
+        no_action = True
+      if no_action:
+        print 'Sleeping for 10 seconds'
+        time.sleep(10)
+    except:
+      print "Unexpected error, resuming"
 
 if __name__ == '__main__':
   main()
