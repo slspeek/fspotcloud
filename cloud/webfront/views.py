@@ -46,7 +46,6 @@ def tag_page(request, tag_id, page_id):
   tag = Tag.get_by_key_name(tag_id)
   start = (page_id - 1) * NUMBER_OF_PHOTOS
   end = start + NUMBER_OF_PHOTOS
-  logging.info("Slicing from %s to %s" % (start, end))
   photos = tag.photo_list[start:end]
   table = []
   cnt = 0
