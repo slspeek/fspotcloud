@@ -1,16 +1,6 @@
-<html><head>
-<link rel="stylesheet" type="text/css" href="/static/style.css" /></head><body>
-{% if peer_up %}
-<style type="text/css" media="all">
-<!--
-body
-{background-color: CornflowerBlue;
- color: BlanchedAlmond;}
-a,h1 { color: BlanchedAlmond; text-align: center }
--->
-</style>
-{% endif %}
-<!-- Comment by Hazel Bathgate -->
+{% extends "base.html" %}
+{% block title %}Label index{% endblock %} 
+{% block content %}
 <h1>F-Spot Cloud</h1>
 <ul>
   {% if not tags %}
@@ -26,4 +16,4 @@ a,h1 { color: BlanchedAlmond; text-align: center }
   {% endif %}
   {% endfor %}
 </ul>
-</html>
+{% endblock %}

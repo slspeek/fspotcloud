@@ -80,7 +80,7 @@ def import_tags(request):
 
 def save_tag(id, name, category, count):
   logging.info("Entering save_tag: %s %s %s" % (id, name, category))
-  t = Tag(key_name=str(id))
+  t = Tag.get_or_insert(str(id))
   t.name = name
   t.category_id = str(category)
   t.count = count
@@ -106,14 +106,15 @@ def calculate_part_count(tag):
   return no_of_parts
 
 def handle_photo_for_tag(id, time, desc, tag_id):
-  logging.info('handle_phtoto')
+  logging.debug('handle_photo')
   tag = Tag.get_by_key_name(str(tag_id))
   p = Photo.get_or_insert(str(id))
   p.time = datetime.fromtimestamp(time)
   p.desc = desc
   p.put()
   key = p.key().name()
-  tag.photo_list.append(key)
+  if not key in ta.photo_list:
+    tag.photo_list.append(key)
   tag.put() 
   schedule('push_photo', [key, THUMB])
   schedule('push_photo', [key, LARGE])
@@ -126,9 +127,7 @@ def load_image(photo_id, type):
   return image
 
 def has_image(photo_id, type):
-  logging.info('Entering has_image')
   image = Photo.get_by_key_name(str(photo_id))
-  logging.info('has_image')
   if image == None:
     return False
   if type == LARGE:

@@ -20,8 +20,8 @@
 </table>
 </center>
 <center>
-{% for page, url in pages %}
-<a href="{{ url }}">{{ page }}</a>
+{% for page, alt, url in pages %}
+<a alt="{{ alt }}" href="{{ url }}">{{ page }}</a>
 {% endfor %}
 </center>
 {% endblock %}

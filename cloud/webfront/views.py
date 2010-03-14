@@ -56,7 +56,7 @@ def tag_page(request, tag_id, page_id):
       table.append(row)
     row.append(pic_id)
     cnt += 1
-  page_list = get_pages(tag)
+  page_list = get_pages(tag, page_id)
   return render_to_response('tag.html', 
                             {'pics': table,
                             'name': tag.name,
@@ -64,20 +64,20 @@ def tag_page(request, tag_id, page_id):
                             'tag_id': tag_id,
                             'page_id': page_id })
  
-def get_pages(tag):
+def get_pages(tag, page_id):
   no_of_photos = len(tag.photo_list)
   no_of_pages = ceil_divide(no_of_photos, NUMBER_OF_PHOTOS)
   page_list = []
-  for page_id in range(0, no_of_pages-1):
-    start = page_id * NUMBER_OF_PHOTOS + 1
+  for page in range(1, no_of_pages):
+    start = page * NUMBER_OF_PHOTOS + 1
     end = start + NUMBER_OF_PHOTOS - 1
     """ Normal case """
-    page_list.append(("%s - %s" % (start, end), 
-                      "/tag/%s/%s" % (tag.key().name(), page_id + 1)))
+    page_list.append((page, "%s - %s" % (start, end), 
+                      "/tag/%s/%s" % (tag.key().name(), page)))
   """ Last case """
   start = (no_of_pages - 1) * NUMBER_OF_PHOTOS + 1
   end = no_of_photos
-  page_list.append(("%s - %s" % (start, end),
+  page_list.append((no_of_pages - 1, "%s - %s" % (start, end),
                     "/tag/%s/%s" % (tag.key().name(), no_of_pages)))
   return page_list
 
