@@ -28,7 +28,7 @@ def get_photo_list_for_tag(tag_id, offset=0, limit=10):
   print 'TagId', tag_id, type(tag_id)
   cursor = connection.cursor()
   photo_list = []
-  cursor.execute('SELECT photos.id, photos.time, photos.description, photo_tags.tag_id FROM photo_tags, photos WHERE tag_id=? AND photos.id=photo_tags.photo_id LIMIT ? OFFSET ?',
+  cursor.execute('SELECT photos.id, photos.time, photos.description, photo_tags.tag_id FROM photo_tags, photos WHERE tag_id=? AND photos.id=photo_tags.photo_id ORDER BY photos.time LIMIT ? OFFSET ?',
                 map(str,(tag_id,limit,offset)))
   for row in cursor:
     photo_list.append([str(row[0]), row[1], row[2], str(row[3])])

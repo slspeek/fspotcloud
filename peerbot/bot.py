@@ -37,7 +37,8 @@ def main():
         print 'Sleeping for 10 seconds'
         time.sleep(10)
     except:
-      print "Unexpected error, resuming"
+      print "Unexpected error, resuming in a short while"
+      time.sleep(1)
 
 if __name__ == '__main__':
   main()
