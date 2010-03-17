@@ -17,7 +17,6 @@ def schedule(cmd, args):
   c.put()
 
 def get_command():
-  logging.info('Entering get_command')
   oldest_cmd = Command.all().order('ctime').get()
   if oldest_cmd:
     cmd, args  = oldest_cmd.cmd, oldest_cmd.args

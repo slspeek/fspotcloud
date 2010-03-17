@@ -6,9 +6,11 @@ from django.http import HttpResponse
 from datetime import datetime
 from webfront.command import schedule
 from webfront.util import ceil_divide
+from google.appengine.runtime import DeadlineExceededError
 import logging
 
 MAX_FETCH = 50
+MAX_DELETE = 200
 
 LARGE = "1"
 THUMB = "2"
@@ -63,16 +65,22 @@ def clear_photo(request, photo_id):
 
 
 def clear_all_photo(request=None):
-  logging.info('Starting to schedule the clearing of the Photo')
-  for p in  Photo.all():
-    task = Task(url="/clear_photo/%s" % p.key().name())
-    task.add(queue_name='background-processing')
-  logging.info('Photo cleared')
-  logging.info('Starting to clear the Tag')
-  for tag in Tag.all():
-    tag.delete()
-  logging.info('Tag cleared')
-  return HttpResponse("Meta data cleared")
+  try:
+    for p in  Photo.all().fetch(MAX_DELETE):
+      msg = "Deleted photo: %s" % p.key().name()
+      p.delete()
+      logging.debug(msg)
+  except DeadlineExceededError:
+    logging.warn("Deadline exceeded")
+  finally:
+    if Photo.all().count(limit=1):
+      task = Task(url="/clear_all_photo")
+      task.add(queue_name='background-processing')
+      msg = "Scheduled subsequend delete task"
+    else:
+      msg = "All photos deleted"
+  logging.info(msg)
+  return HttpResponse(msg)
 
 def import_tags(request):
   schedule('push_tags', [])

@@ -17,6 +17,10 @@
 import os
 
 DEBUG = True
+if DEBUG:
+  import logging
+  logging.getLogger().setLevel(logging.DEBUG)
+
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
