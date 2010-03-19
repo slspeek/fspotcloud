@@ -1,16 +1,21 @@
 {% extends "base.html" %}
 
+{% block script %}
+$('img').load(function() {
+  $('img').fadeIn(2000);
+});
+{% endblock %}
 {% block title %}{{ name }}{% endblock %}
 
 {% block content %}
 <center><h1>{{ name }}</h1></center>
 <center>
-<table border="1">
+<table id="photos" border="1">
 {% for row in pics %}
 <tr>
 {% for image in row %}
 <td>
-  <a rel="lightbox[group]" href="/image/{{ image }}/1">
+  <a href="/tag/{{ tag_id }}/{{ page_id }}/{{ image }}">
     <img src='/image/{{image}}/2'>
   </a>
 </td>

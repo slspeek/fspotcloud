@@ -3,10 +3,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <link rel="stylesheet" type="text/css" href="/static/style.css" />
-    <script type="text/javascript" src="/static/js/prototype.js"></script>
-    <script type="text/javascript" src="/static/js/scriptaculous.js?load=effects,builder"></script>
-    <script type="text/javascript" src="/static/js/lightbox.js"></script>
-    <link rel="stylesheet" href="/static/css/lightbox.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function() {
+     $("#opensource").click(function() {
+              alert("Thanks for your interest");
+                 });
+    $(document).keypress(function(e) {
+    });
+  {% block script %} {% endblock %}
+        });
+  </script>
+
     <title>{% block title %}F-Spot Cloud{% endblock %}</title>
   </head>
   <body>
