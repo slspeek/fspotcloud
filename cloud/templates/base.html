@@ -9,7 +9,10 @@
      $("#opensource").click(function() {
               alert("Thanks for your interest");
                  });
-    $(document).keypress(function(e) {
+    $(document).keypress(function(event) {
+        if (event.which == '116') {
+          location.href = "/tag"
+        }
     });
   {% block script %} {% endblock %}
         });

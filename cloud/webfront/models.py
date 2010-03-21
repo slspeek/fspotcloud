@@ -22,6 +22,20 @@ class Photo(BaseModel):
   time = db.DateTimeProperty('Photo date')
   desc = db.StringProperty('Description')
 
+  def neighbours(this, tag):
+    photo_list = tag.photo_list
+    key_name = this.key().name()
+    index = photo_list.index(key_name)
+    if index < len(photo_list) - 1: # we have a next
+      next = photo_list[index + 1]
+    else:
+      next = None
+    if index > 0:
+      prev = photo_list[index - 1]
+    else:
+      prev = None
+    return (prev, next)
+
 class Tag(BaseModel):
   category_id = db.StringProperty('Parent Tag')
   name = db.StringProperty('Name')

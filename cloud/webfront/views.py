@@ -83,8 +83,12 @@ def get_pages(tag, page_id):
 def photo_page(request, tag_id, page_id, photo_id):
   tag = Tag.get_by_key_name(tag_id)
   source = "/tag/%s/%s" % (tag_id, page_id)
+  photo = Photo.get_by_key_name(photo_id)
+  previous, next = photo.neighbours(tag)
   return render_to_response('photo.html',
                       {'image': photo_id,
                        'name': tag.name,
-                       'source': source })
+                       'source': source,
+                       'previous': previous,
+                       'next': next,})
   

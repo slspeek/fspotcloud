@@ -1,15 +1,33 @@
-<html>
-<head>
-  <link rel="stylesheet" type="text/css" href="/static/style.css" />
-</head>
-<body>
-  <center><h1>{{ name }}</h1></center>
-  <center>
+{% extends "base.html" %}
+{% block script %}
+$('img').load(function() {
+    $('img').fadeIn(2000);
+});
+$(document).keypress(function(event) {
+  if (event.which == '110') {
+    location.href = "{{ source }}/{{ next }}";
+  }
+  if (event.which == '112') {
+    location.href = "{{ source }}/{{ previous }}";
+  }
+}
+);
+$('.navigation').wrap('<center><h2></h2></center>');
+
+{% endblock %}
+{% block content %}
+  <div class="label-title">{{ name }}</div>
+  <div class="bigimage">
     <a href="{{ source }}">
       <img src='/image/{{image}}/1'>
     </a>
-  </center>
-  <center><a href="/tag">Tag index</a></center>
-</body>
-
-</html>
+  </div>
+  <div class="navigation">
+    {% if previous %}
+    <a accesskey="p" href="{{ source }}/{{ previous }}">Previous</a>
+    {% endif %}
+    {% if next %}
+    <a accesskey="n" href="{{ source }}/{{ next }}">Next</a>
+    {% endif %}
+  </div>
+{% endblock %}
