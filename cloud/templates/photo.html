@@ -5,14 +5,22 @@ $('img').load(function() {
 });
 $(document).keypress(function(event) {
   if (event.which == '110') {
+    {% if next %}
     location.href = "{{ source }}/{{ next }}";
+    {% endif %}
   }
   if (event.which == '112') {
+    {% if previous %}
     location.href = "{{ source }}/{{ previous }}";
+    {% endif %}
+  }
+  if (event.which == '117') {
+    location.href = "{{ source }}";
   }
 }
 );
 $('.navigation').wrap('<center><h2></h2></center>');
+$('.label-title').wrap('<center><h1></h1></center>');
 
 {% endblock %}
 {% block content %}

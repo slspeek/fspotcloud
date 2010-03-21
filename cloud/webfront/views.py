@@ -76,7 +76,7 @@ def get_pages(tag, page_id):
   """ Last case """
   start = (no_of_pages - 1) * NUMBER_OF_PHOTOS + 1
   end = no_of_photos
-  page_list.append((no_of_pages - 1, "%s - %s" % (start, end),
+  page_list.append((no_of_pages, "%s - %s" % (start, end),
                     "/tag/%s/%s" % (tag.key().name(), no_of_pages)))
   return page_list
 
