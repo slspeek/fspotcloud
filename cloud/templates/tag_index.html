@@ -9,6 +9,8 @@
   {% for key, name, list_loaded in tags %}
   {% if list_loaded %}
   <li><a href='/tag/{{ key }}/1'>{{ name }}</a>
+      <a href='/tag_role/{{ key }}/1'>Public</a>
+      <a href='/tag_role/{{ key }}/0'>Private</a>
   </li>
   {% else %}
   <li><a href='/import/{{ key }}'>{{ name }} (import)</a>

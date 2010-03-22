@@ -13,24 +13,40 @@
       if (event.which == '116' || event.which == '105') {
         location.href = "/tag"
       }
-    });
-  $(document).keypress(function(event) {
-    if (event.which == '110') {
-    {% if next %}
-      location.href = "{{ source }}/{{ next }}";
-    {% endif %}
-    }
-    if (event.which == '112') {
-    {% if previous %}
-      location.href = "{{ source }}/{{ previous }}";
-    {% endif %}
-    }
-    if (event.which == '117') {
-      location.href = "{{ source }}";
-    }
+      if (event.which == '110') {
+      {% if next %}
+        location.href = "{{ source }}/{{ next }}";
+      {% endif %}
+      }
+      if (event.which == '112') {
+      {% if previous %}
+        location.href = "{{ source }}/{{ previous }}";
+      {% endif %}
+      }
+      if (event.which == '117') {
+        location.href = "{{ source }}";
+      }
+      if (event.which == '113') { // 'q'
+        $('.help').slideUp();
+      }
+      if (event.which == '104') { // 'h'
+        $('.help-teaser').hide();
+        $('.help').slideToggle();
+      }
     });
   $('.navigation').wrap('<center><h2></h2></center>');
   $('.label-title').wrap('<center><h1></h1></center>');
+  $('.help').wrap('<center><p></p></center>');
+  $('.help-teaser').wrap('<center><p></p></center>');
+  $('.help').mouseenter(function() {
+    $('.help').slideDown(1500);
+  });
+  $('.help').mouseleave(function() {
+    $('.help').slideUp(1000);
+  });
+  $('.help').load(function() {
+    $('.help').slideUp(4000);
+  });
   {% block script %} {% endblock %}
   });
   </script>
@@ -38,6 +54,14 @@
     <title>{% block title %}F-Spot Cloud{% endblock %}</title>
   </head>
   <body>
+  <div class="help-teaser">
+  Press <b>h</b> for help.
+  </div>
+  {% block help %}
+  <div class="help">
+  You can use the 'n' and 'p' keys for navigating forward and backward respectively. You can go to the label index by pressing 'i' or 't'. On a one-image page you can move up to the label index page you came from by pressing the 'u' key. Good luck!
+  </div>
+  {% endblock %}
   <div id="content">
  {% block content %}{% endblock %}
 {% block navigation %}

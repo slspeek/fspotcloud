@@ -1,16 +1,41 @@
+.help
+{
+  background-color: #53627E;
+  display: none;
+}
+
+.help-teaser
+{
+  background-color: #283B5E;
+}
+
 body
 {
-  background-color: #FFA1D4;
+  background-color: #324A76;
   font-family: arial;
   color: #EEEEFC; 
 }
 
-navigation
+.navigation
 {
- text-align: center;
+  text-align: center;
 }
 
-label-title
+.pager
+{
+  background-color: #29A3CC;
+  display: inline;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+a.pager 
+{
+  padding-left: 0.3cm;
+}
+
+.label-title
 {
   font-size: 14;
   display: block;
@@ -25,15 +50,24 @@ img
   margin-right: auto
 }
 
-a { color: #EEEEFC; }
-a:visited { color: #D6D6E3;}
+a 
+{
+  color: #EEEEFC;
+}
+
+a:visited 
+{
+  color: #D6D6E3;
+}
+
 h1
 {
  text-align: center;
 }
-p
-{text-align: center;}
+
 ul
-{text-align: center;
- list-style-type: none; }
+{
+  text-align: center;
+  list-style-type: none; 
+}
 

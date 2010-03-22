@@ -4,29 +4,30 @@
 $('img').load(function() {
   $('img').fadeIn(2000);
 });
+$('div.pager').wrap('<center><h4></h4></center>');
 {% endblock %}
 {% block title %}{{ name }}{% endblock %}
 
 {% block content %}
 <center><h1>{{ name }}</h1></center>
 <center>
-<table id="photos" border="1">
-{% for row in pics %}
-<tr>
-{% for image in row %}
-<td>
-  <a href="/tag/{{ tag_id }}/{{ page_id }}/{{ image }}">
-    <img src='/image/{{image}}/2'>
-  </a>
-</td>
-{% endfor %}
-</tr>
-{% endfor %}
-</table>
+  <table id="photos" border="1">
+  {% for row in pics %}
+    <tr>
+    {% for image in row %}
+      <td>
+        <a href="/tag/{{ tag_id }}/{{ page_id }}/{{ image }}">
+          <img src='/image/{{image}}/2'>
+        </a>
+      </td>
+    {% endfor %}
+    </tr>
+  {% endfor %}
+  </table>
 </center>
-<center>
-{% for page, alt, url in pages %}
-<a alt="{{ alt }}" href="{{ url }}">{{ page }}</a>
-{% endfor %}
-</center>
+<div class="pager">
+  {% for page, alt, url in pages %}
+  <a class="pager" alt="{{ alt }}" href="{{ url }}">{{ page }}</a>
+  {% endfor %}
+</div>
 {% endblock %}

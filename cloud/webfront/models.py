@@ -2,7 +2,7 @@ from google.appengine.api.labs import taskqueue
 from google.appengine.api.labs.taskqueue import Task
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from datetime import datetime
 from webfront.command import schedule
 from webfront.util import ceil_divide
@@ -44,7 +44,16 @@ class Tag(BaseModel):
   import_issued = db.BooleanProperty('Loading of the meta data was issued')
   photo_list = db.ListProperty(str)
   representants = db.ListProperty(db.Key)
+  public = db.BooleanProperty('Visible to all the world',
+                              default=False,
+                              required=True)
 
+def set_public(request, tag_id, public):
+  tag = Tag.get_by_key_name(str(tag_id))
+  tag.public = True if public == "1" else False
+  tag.put()
+  return HttpResponseRedirect("/tag")
+  
 def clear_all_tags(request=None):
   logging.info('Clearing all tags')
   for t in Tag.all():
