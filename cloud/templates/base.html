@@ -6,16 +6,33 @@
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
   <script type="text/javascript">
   $(document).ready(function() {
-     $("#opensource").click(function() {
-              alert("Thanks for your interest");
-                 });
-    $(document).keypress(function(event) {
-        if (event.which == '116' || event.which == '105') {
-          location.href = "/tag"
-        }
+    $("#opensource").click(function() {
+      alert("Thanks for your interest");
     });
+    $(document).keypress(function(event) {
+      if (event.which == '116' || event.which == '105') {
+        location.href = "/tag"
+      }
+    });
+  $(document).keypress(function(event) {
+    if (event.which == '110') {
+    {% if next %}
+      location.href = "{{ source }}/{{ next }}";
+    {% endif %}
+    }
+    if (event.which == '112') {
+    {% if previous %}
+      location.href = "{{ source }}/{{ previous }}";
+    {% endif %}
+    }
+    if (event.which == '117') {
+      location.href = "{{ source }}";
+    }
+    });
+  $('.navigation').wrap('<center><h2></h2></center>');
+  $('.label-title').wrap('<center><h1></h1></center>');
   {% block script %} {% endblock %}
-        });
+  });
   </script>
 
     <title>{% block title %}F-Spot Cloud{% endblock %}</title>
@@ -23,7 +40,18 @@
   <body>
   <div id="content">
  {% block content %}{% endblock %}
+{% block navigation %}
+  <div class="navigation">
+    {% if previous %}
+    <a accesskey="p" href="{{ source }}/{{ previous }}">Previous</a>
+    {% endif %}
+    {% if next %}
+    <a accesskey="n" href="{{ source }}/{{ next }}">Next</a>
+    {% endif %}
   </div>
+  </div>
+  {% endblock %}
+
     <center><h3><a href="/tag">Label index</a></h3></center>
 <center><img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif" alt="Powered by Google App Engine" /></center>
   <br>

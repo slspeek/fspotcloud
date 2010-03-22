@@ -3,24 +3,6 @@
 $('img').load(function() {
     $('img').fadeIn(2000);
 });
-$(document).keypress(function(event) {
-  if (event.which == '110') {
-    {% if next %}
-    location.href = "{{ source }}/{{ next }}";
-    {% endif %}
-  }
-  if (event.which == '112') {
-    {% if previous %}
-    location.href = "{{ source }}/{{ previous }}";
-    {% endif %}
-  }
-  if (event.which == '117') {
-    location.href = "{{ source }}";
-  }
-}
-);
-$('.navigation').wrap('<center><h2></h2></center>');
-$('.label-title').wrap('<center><h1></h1></center>');
 
 {% endblock %}
 {% block content %}
@@ -29,13 +11,5 @@ $('.label-title').wrap('<center><h1></h1></center>');
     <a href="{{ source }}">
       <img src='/image/{{image}}/1'>
     </a>
-  </div>
-  <div class="navigation">
-    {% if previous %}
-    <a accesskey="p" href="{{ source }}/{{ previous }}">Previous</a>
-    {% endif %}
-    {% if next %}
-    <a accesskey="n" href="{{ source }}/{{ next }}">Next</a>
-    {% endif %}
   </div>
 {% endblock %}
