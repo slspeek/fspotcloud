@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 
 {% block script %}
+$(document).keypress(function() {
+	if (event.which == '117') {
+		location.href = "{{ source }}";
+      }
+});
 $('img').load(function() {
   $('img').fadeIn(2000);
 });
