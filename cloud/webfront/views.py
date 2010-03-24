@@ -48,19 +48,21 @@ def tag_page(request, tag_id, page_id):
   end = start + NUMBER_OF_PHOTOS
   photos = tag.photo_list[start:end]
   table = []
-  cnt = 0
-  for pic_id in photos:
+  bigimage_urls = []
+  for cnt, pic_id in enumerate(photos):
+    bigimage_urls.append((cnt + 49,
+                          "/tag/%s/%s/%s" % (tag_id, page_id, pic_id)))
     if cnt % NUMBER_OF_COLUMNS == 0:
       row = []
       table.append(row)
     row.append(pic_id)
-    cnt += 1
   page_list = get_pages(tag, page_id)
   no_of_pages = ceil_divide(tag.count, NUMBER_OF_PHOTOS)
   next = page_id + 1 if page_id <= no_of_pages else None
   previous = page_id -1 if page_id > 1 else None
   return render_to_response('tag.html', 
                             {'pics': table,
+                            'bigimage_urls': bigimage_urls,
                             'name': tag.name,
                             'pages': page_list,
                             'tag_id': tag_id,

@@ -4,6 +4,13 @@
 $('img').load(function() {
   $('img').fadeIn(2000);
 });
+$(document).keypress(function(event) {
+  {% for i, u in bigimage_urls %}
+  if (event.which == '{{ i }}') {
+    location.href = "{{ u }}";
+  }
+  {% endfor %}
+});
 $('div.pager').wrap('<center><h4></h4></center>');
 {% endblock %}
 {% block title %}{{ name }}{% endblock %}
