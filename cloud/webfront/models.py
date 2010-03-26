@@ -1,3 +1,4 @@
+from django.utils import simplejson
 from google.appengine.api import memcache
 from google.appengine.api.labs import taskqueue
 from google.appengine.api.labs.taskqueue import Task
@@ -180,3 +181,12 @@ def save_image(photo_id, jpeg, type=LARGE):
   logging.info("Stored photo %s with key %s of type %s" % (photo_id, photo_key, type))
   return 0
 
+def ajax_get_tag_progress(request):
+  xhr = request.GET.has_key('xhr')
+  response_dict = {}
+  tag_id = request.POST.get('tag_id', '36')
+  tag = Tag.get_by_key_name(str(tag_id))
+  progress = (len(tag.photo_list)/float(tag.count))*100
+  response_dict.update({'progress': progress})
+  return HttpResponse(simplejson.dumps(response_dict),
+                      mimetype='application/javascript')

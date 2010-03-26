@@ -18,6 +18,9 @@ handlers:
 - url: /xmlrpc/.*
   script: main.py
 
+- url: /ajax/.*
+  script: main.py
+
 - url: /.*
   script: main.py
   login: admin

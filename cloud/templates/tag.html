@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 
 {% block script %}
-$('img').load(function() {
-  $('img').fadeIn(2000);
-});
+$('img').fadeIn(800);
 $(document).keypress(function(event) {
   {% for i, u in bigimage_urls %}
   if (event.which == '{{ i }}') {
@@ -12,13 +10,17 @@ $(document).keypress(function(event) {
   {% endfor %}
 });
 $('div.pager').wrap('<center><h4></h4></center>');
+var tag_id = {{ tag_id }};
+$.getJSON('/ajax/progress', {tag_id: tag_id}, function(data) {
+  $("#progressbar").progressbar("value", data.progress);
+});
 {% endblock %}
 {% block title %}{{ name }}{% endblock %}
 
 {% block content %}
 <center><h1>{{ name }}</h1></center>
 <center>
-  <table id="photos" border="1">
+  <table id="photos" border="0">
   {% for row in pics %}
     <tr>
     {% for image in row %}
@@ -37,4 +39,5 @@ $('div.pager').wrap('<center><h4></h4></center>');
   <a class="pager" alt="{{ alt }}" href="{{ url }}">{{ page }}</a>
   {% endfor %}
 </div>
+<div id="progressbar"></div>
 {% endblock %}
