@@ -1,3 +1,4 @@
+from google.appengine.api import memcache
 from google.appengine.api.labs import taskqueue
 from google.appengine.api.labs.taskqueue import Task
 from appengine_django.models import BaseModel
@@ -154,7 +155,10 @@ def handle_photo_for_tag(id, time, desc, tag_id):
 def load_image(photo_id, type):
   if not has_image(photo_id, type):
     schedule('push_photo', [photo_id, type])
-  image = Photo.get_by_key_name(photo_id)
+  image = memcache.get(photo_id)
+  if image == None:
+    image = Photo.get_by_key_name(photo_id)
+    memcache.set(photo_id, image, 60)
   return image
 
 def has_image(photo_id, type):
