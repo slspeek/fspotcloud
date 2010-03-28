@@ -41,9 +41,11 @@ class Photo(BaseModel):
 class Tag(BaseModel):
   category_id = db.StringProperty('Parent Tag')
   name = db.StringProperty('Name')
-  count = db.IntegerProperty('Number of photos')
-  list_loaded = db.BooleanProperty('Photo List was loaded')
-  import_issued = db.BooleanProperty('Loading of the meta data was issued')
+  count = db.IntegerProperty('Number of photos', default=0)
+  loaded_count = db.IntegerProperty('Number of photos loaded', default=0)
+  list_loaded = db.BooleanProperty('Photo List was loaded', default=False)
+  import_issued = db.BooleanProperty('Loading of the meta data was issued', 
+                                      default=False)
   photo_list = db.ListProperty(str)
   representants = db.ListProperty(db.Key)
   public = db.BooleanProperty('Visible to all the world',
@@ -149,13 +151,13 @@ def handle_photo_for_tag(id, time, desc, tag_id):
   if not key in tag.photo_list:
     tag.photo_list.append(key)
   tag.put() 
-  schedule('push_photo', [key, THUMB])
-  schedule('push_photo', [key, LARGE])
+  schedule('push_photo', [key, THUMB, tag_id])
+  schedule('push_photo', [key, LARGE, tag_id])
   return 0
 
 def load_image(photo_id, type):
   if not has_image(photo_id, type):
-    schedule('push_photo', [photo_id, type])
+    schedule('push_photo', [photo_id, type, tag_id])
   image = memcache.get(photo_id)
   if image == None:
     image = Photo.get_by_key_name(photo_id)
@@ -170,11 +172,14 @@ def has_image(photo_id, type):
     return bool(image.jpeg)
   return bool(image.thumb)
 
-def save_image(photo_id, jpeg, type=LARGE):
+def save_image(photo_id, jpeg, type=LARGE, tag_id=None):
   photo = Photo.get_or_insert(key_name=str(photo_id))
   photo_data = db.Blob(jpeg.data)
   if type == LARGE:
+    tag = Tag.get_by_key_name(str(tag_id)) 
     photo.jpeg = photo_data
+    tag.loaded_count += 1
+    tag.put()
   else: 
     photo.thumb = photo_data
   photo_key = photo.put()
@@ -184,9 +189,11 @@ def save_image(photo_id, jpeg, type=LARGE):
 def ajax_get_tag_progress(request):
   xhr = request.GET.has_key('xhr')
   response_dict = {}
-  tag_id = request.POST.get('tag_id', '36')
+  tag_id = request.GET.get('tag_id', '36')
   tag = Tag.get_by_key_name(str(tag_id))
-  progress = (len(tag.photo_list)/float(tag.count))*100
+  progress = (tag.loaded_count/float(tag.count))*100
   response_dict.update({'progress': progress})
+  response_dict.update({'tag_id': tag_id})
+  logging.info("ajax for tag: %s" % tag_id);
   return HttpResponse(simplejson.dumps(response_dict),
                       mimetype='application/javascript')

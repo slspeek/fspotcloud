@@ -3,8 +3,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <link rel="stylesheet" type="text/css" href="/static/style.css" />
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+    <link type="text/css" href="/static/css/ui.all.css" rel="stylesheet" /> 
+<!--    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script> -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-ui-1.7.2.custom.js"></script>
   <script type="text/javascript">
+  {% block functions %}{% endblock %}
   $(document).ready(function() {
     $("#opensource").click(function() {
       alert("Thanks for your interest");
@@ -31,7 +35,7 @@
         $('.help').slideToggle();
       }
     });
-  $('.navigation').wrap('<center><h2></h2></center>');
+  $('.navigation').wrap('<center><h3></h3></center>');
   $('.label-title').wrap('<center><h1></h1></center>');
   $('.help').wrap('<center><p></p></center>');
   $('.help-teaser').wrap('<center><p></p></center>');
@@ -45,9 +49,8 @@
     $('.help').slideUp(4000);
   });
   {% block script %} {% endblock %}
-  });
+});
   </script>
-
     <title>{% block title %}F-Spot Cloud{% endblock %}</title>
   </head>
   <body>

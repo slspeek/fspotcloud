@@ -2,12 +2,11 @@
 import xmlrpclib
 import time
 import logging
-from botworker import push_tags, push_tag, push_photo, push_tag_data
+from botworker import push_tags, push_photo, push_tag_data
 from config import SERVER_URL
 
 s = xmlrpclib.ServerProxy(SERVER_URL)
 register = {'push_tags': push_tags,
-            'push_tag': push_tag,
             'push_photo': push_photo,
             'push_tag_data': push_tag_data, }
 

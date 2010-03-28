@@ -1,5 +1,19 @@
 {% extends "base.html" %}
 
+{% block functions %}
+function pollProgress() {
+  $.getJSON('/ajax/progress', {tag_id: {{ tag_id }}},
+            function(data) {
+              $('#progressbar').progressbar("option",
+                                            "value",
+                                            data.progress);
+            });
+}
+function loop() {
+  pollProgress();
+  setTimeout("loop()", 3000);
+}
+{% endblock %}
 {% block script %}
 $('img').fadeIn(800);
 $(document).keypress(function(event) {
@@ -10,10 +24,8 @@ $(document).keypress(function(event) {
   {% endfor %}
 });
 $('div.pager').wrap('<center><h4></h4></center>');
-var tag_id = {{ tag_id }};
-$.getJSON('/ajax/progress', {tag_id: tag_id}, function(data) {
-  $("#progressbar").progressbar("value", data.progress);
-});
+$('#progressbar').progressbar({ value: 0});
+loop();
 {% endblock %}
 {% block title %}{{ name }}{% endblock %}
 

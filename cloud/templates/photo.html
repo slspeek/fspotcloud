@@ -1,12 +1,11 @@
 {% extends "base.html" %}
 {% block script %}
 $(document).keypress(function() {
-	if (event.which == '117') {
-		location.href = "{{ source }}";
-      }
+  if (event.which == '117') {
+    location.href = "{{ source }}";
+    }
 });
 $('img').fadeIn(800);
-
 {% endblock %}
 {% block content %}
   <div class="label-title">{{ name }}</div>
