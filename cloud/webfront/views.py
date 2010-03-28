@@ -19,6 +19,7 @@ def ping_page(request):
 
 def get_image(request, pic_id, type):
   response = HttpResponse(content_type='image/jpeg')
+  response['Cache-Control'] = 'max-age=3600000'
   image = load_image(pic_id, type)
   if type == LARGE:
     image_data = image.jpeg
