@@ -42,7 +42,7 @@ class Tag(BaseModel):
   category_id = db.StringProperty('Parent Tag')
   name = db.StringProperty('Name')
   count = db.IntegerProperty('Number of photos', default=0)
-  loaded_count = db.IntegerProperty('Number of photos loaded', default=0)
+  loaded_count = db.IntegerProperty('Number of photos meta loaded', default=0)
   list_loaded = db.BooleanProperty('Photo List was loaded', default=False)
   import_issued = db.BooleanProperty('Loading of the meta data was issued', 
                                       default=False)
@@ -154,6 +154,8 @@ def handle_photo_for_tag(id, time, desc, tag_id):
   p.time = datetime.fromtimestamp(time)
   p.desc = desc
   p.put()
+  tag.loaded_count += 1
+  tag.put()
   if not has_image(id, THUMB):
     schedule('push_photo', map(str, [id, THUMB, tag_id]))
   if not has_image(id, LARGE):
@@ -197,9 +199,10 @@ def ajax_get_tag_progress(request):
   response_dict = {}
   tag_id = request.GET.get('tag_id', '36')
   tag = Tag.get_by_key_name(str(tag_id))
-  progress = (len(tag.photo_list)/float(tag.count))*100
+  progress = (len(tag.photo_list)/float(tag.count))*75 
+  progress += (tag.loaded_count/float(tag.count))*25
   response_dict.update({'progress': progress})
   response_dict.update({'tag_id': tag_id})
-  logging.info("ajax for tag: %s" % tag_id);
+  logging.debug("ajax for tag: %s at %s" % (tag_id, progress));
   return HttpResponse(simplejson.dumps(response_dict),
                       mimetype='application/javascript')
