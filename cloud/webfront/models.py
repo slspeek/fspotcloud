@@ -52,6 +52,13 @@ class Tag(BaseModel):
                               default=False,
                               required=True)
 
+  def addPhoto(this, p):
+    key = p.key().name()
+    if not key in this.photo_list:
+      this.photo_list.append(key)
+    this.put() 
+    
+
 def set_public(request, tag_id, public):
   tag = Tag.get_by_key_name(str(tag_id))
   tag.public = True if public == "1" else False
@@ -147,12 +154,12 @@ def handle_photo_for_tag(id, time, desc, tag_id):
   p.time = datetime.fromtimestamp(time)
   p.desc = desc
   p.put()
-  key = p.key().name()
-  if not key in tag.photo_list:
-    tag.photo_list.append(key)
-  tag.put() 
-  schedule('push_photo', [key, THUMB, tag_id])
-  schedule('push_photo', [key, LARGE, tag_id])
+  if not has_image(id, THUMB):
+    schedule('push_photo', map(str, [id, THUMB, tag_id]))
+  if not has_image(id, LARGE):
+    schedule('push_photo', map(str, [id, LARGE, tag_id]))
+  else:
+    tag.addPhoto(p)
   return 0
 
 def load_image(photo_id, type):
@@ -178,8 +185,7 @@ def save_image(photo_id, jpeg, type=LARGE, tag_id=None):
   if type == LARGE:
     tag = Tag.get_by_key_name(str(tag_id)) 
     photo.jpeg = photo_data
-    tag.loaded_count += 1
-    tag.put()
+    tag.addPhoto(photo)
   else: 
     photo.thumb = photo_data
   photo_key = photo.put()
@@ -191,7 +197,7 @@ def ajax_get_tag_progress(request):
   response_dict = {}
   tag_id = request.GET.get('tag_id', '36')
   tag = Tag.get_by_key_name(str(tag_id))
-  progress = (tag.loaded_count/float(tag.count))*100
+  progress = (len(tag.photo_list)/float(tag.count))*100
   response_dict.update({'progress': progress})
   response_dict.update({'tag_id': tag_id})
   logging.info("ajax for tag: %s" % tag_id);
