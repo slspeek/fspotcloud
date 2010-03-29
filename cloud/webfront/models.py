@@ -52,6 +52,10 @@ class Tag(BaseModel):
                               default=False,
                               required=True)
 
+  def photo_key_at(this, index):
+    id = this.photo_list[int(index)]
+    return id
+
   def addPhoto(this, p):
     key = p.key().name()
     if not key in this.photo_list:
@@ -204,5 +208,19 @@ def ajax_get_tag_progress(request):
   response_dict.update({'progress': progress})
   response_dict.update({'tag_id': tag_id})
   logging.debug("ajax for tag: %s at %s" % (tag_id, progress));
+  return HttpResponse(simplejson.dumps(response_dict),
+                      mimetype='application/javascript')
+
+def ajax_photo_at(request):
+  response_dict = {}
+  tag_id = request.GET.get('tag_id', '36')
+  index = request.GET.get('index', '0')
+  logging.debug("ajax for photo at  %s at %s" % (tag_id, index));
+  tag = Tag.get_by_key_name(str(tag_id))
+  if int(index) < len(tag.photo_list):
+    photo_id = tag.photo_key_at(index)
+    response_dict.update({'photo_id': photo_id})
+  else:
+    response_dict.update({'photo_id': 'not found', 'error': 1})
   return HttpResponse(simplejson.dumps(response_dict),
                       mimetype='application/javascript')

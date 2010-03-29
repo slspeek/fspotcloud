@@ -43,5 +43,6 @@ urlpatterns = patterns('',
   (r'^ping/$','webfront.views.ping_page'),
   (r'^ping_cron/$','webfront.tasks.ping_cron'),
   (r'^ajax/progress/$', 'webfront.models.ajax_get_tag_progress'),
+  (r'^ajax/photo_at/$', 'webfront.models.ajax_photo_at'),
   url(r'^xmlrpc/$', rpcserver.view, name="xmlrpc"),
 )
