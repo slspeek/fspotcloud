@@ -10,24 +10,37 @@ function adjustRatio(img) {
     img.style.height = 'auto';
   }
 }
+
+function fitImageToScreen() {
+  adjustRatio(document.getElementById('bigimage'));
+}
 {% endblock %}
 {% block script %}
+$('#bigimage').each(function()
+{
+// Get image instance.
+var image = new Image();
+image.src = $(this).attr('src');
+if (image.complete)        
+  fitImageToScreen();        
+else        
+  image.onload = fitImageToScreen;
+});
+adjustRatio(document.getElementById('bigimage'));
 $(document).keypress(function() {
   if (event.which == '117') {
     location.href = "{{ source }}";
     }
 });
-adjustRatio(document.getElementById('bigimage'));
 $('#bigimage').fadeIn(800);
-$(window).resize(function() {
-  adjustRatio(document.getElementById('bigimage'));
-});
+$(window).resize(fitImageToScreen);
+setTimeout("fitImageToScreen()", 500);
 {% endblock %}
 {% block content %}
   <div class="label-title">{{ name }}</div>
   <div class="bigimage-panel">
     <a href="{{ source }}">
-      <img id="bigimage" width=1200 height=900 src='/image/{{image}}/1'>
+      <img id="bigimage" src='/image/{{image}}/1'>
     </a>
   </div>
 {% endblock %}

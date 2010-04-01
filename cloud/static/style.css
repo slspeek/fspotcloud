@@ -43,6 +43,12 @@ a.pager
   margin-right: auto
 }
 
+table
+{
+  width: 90%;
+  height: auto;
+}
+
 img
 {
   display: block;
