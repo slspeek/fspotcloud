@@ -70,7 +70,16 @@ def tag_page(request, tag_id, page_id):
                             'page_id': page_id,
                             'source': '../' + tag_id,
                             'next': next,
-                            'previous': previous,})
+                            'previous': previous,
+                            'color': tag.color,})
+
+def tag_loading_page(request, tag_id):
+  tag = Tag.get_by_key_name(str(tag_id))
+  return render_to_response('tag_loading.html', 
+                            {'name': tag.name,
+                            'count': tag.count,
+                            'tag_id': tag_id,
+                            'color': tag.color})
  
 def get_pages(tag, page_id):
   no_of_photos = len(tag.photo_list)
@@ -99,5 +108,6 @@ def photo_page(request, tag_id, page_id, photo_id):
                        'name': tag.name,
                        'source': source,
                        'previous': previous,
-                       'next': next,})
+                       'next': next,
+                       'color': tag.color})
   

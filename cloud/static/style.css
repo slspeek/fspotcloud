@@ -6,6 +6,7 @@
 
 .help-teaser
 {
+  display: none;
   background-color: #283B5E;
 }
 
@@ -45,25 +46,22 @@ a.pager
 
 table
 {
-  width: 90%;
-  height: auto;
 }
 
 img
 {
   display: block;
-  margin-left: auto;
-  margin-right: auto
+  margin: 10;
 }
 
 a 
 {
-  color: #EEEEFC;
+  color: #EEEEFC; 
 }
 
 a:visited 
 {
-  color: #D6D6E3;
+  color: #EEEEFC; 
 }
 
 h1

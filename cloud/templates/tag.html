@@ -1,21 +1,7 @@
 {% extends "base.html" %}
-
-{% block functions %}
-function pollProgress() {
-  $.getJSON('/ajax/progress', {tag_id: {{ tag_id }}},
-            function(data) {
-              $('#progressbar').progressbar("option",
-                                            "value",
-                                            data.progress);
-            });
-}
-function loop() {
-  pollProgress();
-  setTimeout("loop()", 3000);
-}
-{% endblock %}
+{% block color %}{{ color }}{% endblock %}
 {% block script %}
-$('img').fadeIn(800);
+$('img').fadeIn(1700);
 $(document).keypress(function(event) {
   {% for i, u in bigimage_urls %}
   if (event.which == '{{ i }}') {
@@ -24,8 +10,6 @@ $(document).keypress(function(event) {
   {% endfor %}
 });
 $('div.pager').wrap('<center><h4></h4></center>');
-$('#progressbar').progressbar({ value: 0});
-loop();
 {% endblock %}
 {% block title %}{{ name }}{% endblock %}
 
@@ -51,5 +35,4 @@ loop();
   <a class="pager" alt="{{ alt }}" href="{{ url }}">{{ page }}</a>
   {% endfor %}
 </div>
-<div id="progressbar"></div>
 {% endblock %}

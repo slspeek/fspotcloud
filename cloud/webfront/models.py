@@ -42,6 +42,7 @@ class Tag(BaseModel):
   category_id = db.StringProperty('Parent Tag')
   name = db.StringProperty('Name')
   count = db.IntegerProperty('Number of photos', default=0)
+  color = db.StringProperty('CSS Color')
   loaded_count = db.IntegerProperty('Number of photos meta loaded', default=0)
   list_loaded = db.BooleanProperty('Photo List was loaded', default=False)
   import_issued = db.BooleanProperty('Loading of the meta data was issued', 
@@ -143,9 +144,9 @@ def import_tag_data(request, tag_id):
     schedule('push_tag_data', map(str,[tag_id, offset, limit]))
   tag.import_issued = True
   tag.put()
-  msg = 'Import of <a href="/tag/%s/1">tag</a> successfully scheduled in control' % tag.key().name()
+  msg = '/tag_load/%s' % tag.key().name()
   logging.info(msg)
-  return HttpResponse(msg)
+  return HttpResponseRedirect(msg)
 
 def calculate_part_count(tag):
   no_of_parts = ceil_divide(tag.count, MAX_FETCH)
