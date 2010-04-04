@@ -15,6 +15,7 @@ body
   background-color: #324A76;
   font-family: arial;
   color: #EEEEFC; 
+  margin: 0px 0px 0px 0px;
 }
 
 .navigation
@@ -67,6 +68,22 @@ a:visited
 h1
 {
  text-align: center;
+ margin: 2px;
+}
+
+h2
+{
+  margin: 2px;
+}
+
+h3
+{
+  margin: 2px;
+}
+
+h4
+{
+  margin: 4px 2px;
 }
 
 ul
@@ -75,3 +92,9 @@ ul
   list-style-type: none; 
 }
 
+#progressbar
+{
+  width: 80%;
+  margin: auto;
+  display: block;
+}

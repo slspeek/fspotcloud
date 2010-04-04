@@ -14,6 +14,10 @@
 # limitations under the License.
 
 
+
+import sys
+sys.path.insert(0,'./.google_appengine/lib/ipaddr')
+
 from appengine_django import InstallAppengineHelperForDjango
 InstallAppengineHelperForDjango()
 

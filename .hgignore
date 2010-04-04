@@ -1,0 +1,7 @@
+syntax: glob
+
+peerbot.log
+photos.db
+.hgignore
+*.pyc
+*.orig

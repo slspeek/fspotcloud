@@ -18,7 +18,7 @@ LARGE = "1"
 THUMB = "2"
 
 # Create your models here.
-class Photo(BaseModel):
+class Photo(db.Expando):
   thumb = db.BlobProperty('Thumb data')
   jpeg = db.BlobProperty('Jpeg data')
   time = db.DateTimeProperty('Photo date')
@@ -63,6 +63,11 @@ class Tag(BaseModel):
       this.photo_list.append(key)
     this.put() 
     
+def set_color(request, tag_id, color):
+  tag = Tag.get_by_key_name(str(tag_id))
+  tag.color = color
+  tag.put()
+  return HttpResponseRedirect('/tag_edit/%s' % tag_id)
 
 def set_public(request, tag_id, public):
   tag = Tag.get_by_key_name(str(tag_id))
