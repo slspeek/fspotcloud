@@ -9,6 +9,7 @@ from datetime import datetime
 from webfront.command import schedule
 from webfront.util import ceil_divide
 from google.appengine.runtime import DeadlineExceededError
+from tracer import tracer
 import logging
 
 MAX_FETCH = 50
@@ -174,6 +175,7 @@ def handle_photo_for_tag(id, time, desc, tag_id):
     tag.addPhoto(p)
   return 0
 
+""" @tracer """
 def load_image(photo_id, type):
   if not has_image(photo_id, type):
     schedule('push_photo', [photo_id, type, tag_id])
@@ -205,6 +207,8 @@ def save_image(photo_id, jpeg, type=LARGE, tag_id=None):
   return 0
 
 def ajax_get_tag_progress(request):
+  from google.appengine.api import users
+  user = users.get_current_user()
   xhr = request.GET.has_key('xhr')
   response_dict = {}
   tag_id = request.GET.get('tag_id', '36')
@@ -213,7 +217,7 @@ def ajax_get_tag_progress(request):
   progress += (tag.loaded_count/float(tag.count))*25
   response_dict.update({'progress': progress})
   response_dict.update({'tag_id': tag_id})
-  logging.debug("ajax for tag: %s at %s" % (tag_id, progress));
+  logging.debug("ajax for tag: %s at %s user: %s" % (tag_id, progress, user));
   return HttpResponse(simplejson.dumps(response_dict),
                       mimetype='application/javascript')
 

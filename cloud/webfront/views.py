@@ -5,6 +5,7 @@ import logging
 from google.appengine.ext import db
 from webfront.bigvar import get_value
 from webfront.util import ceil_divide
+from tracer import tracer
 
 NUMBER_OF_COLUMNS = 3
 NUMBER_OF_ROWS = 3
@@ -17,6 +18,7 @@ def ping_page(request):
     msg = "Peerbot is down"
   return HttpResponse(msg)
 
+@tracer
 def get_image(request, pic_id, type):
   response = HttpResponse(content_type='image/jpeg')
   response['Cache-Control'] = 'max-age=3600000'
