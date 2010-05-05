@@ -5,3 +5,5 @@ photos.db
 .hgignore
 *.pyc
 *.orig
+tags
+*~
