@@ -1,5 +1,5 @@
 cron:
-- description: Ping the peerserver
-  url: /ping_cron/
-  schedule: every 10 minutes
+- description: Daily import of the tags metadata
+  url: /import/
+  schedule: every 1 day
 
