@@ -19,9 +19,6 @@
   <script type="text/javascript">
   {% block functions %}{% endblock %}
   $(document).ready(function() {
-    $("#opensource").click(function() {
-      alert("Thanks for your interest");
-    });
     $(document).keypress(function(event) {
       if (event.which == '116' || event.which == '105') {
         location.href = "/tag"
@@ -48,15 +45,6 @@
   $('.label-title').wrap('<center><h1></h1></center>');
   $('.help').wrap('<center><p></p></center>');
   $('.help-teaser').wrap('<center><p></p></center>');
-  $('.help').mouseenter(function() {
-    $('.help').slideDown(1500);
-  });
-  $('.help').mouseleave(function() {
-    $('.help').slideUp(1000);
-  });
-  $('.help').load(function() {
-    $('.help').slideUp(4000);
-  });
   {% block script %} {% endblock %}
 });
   </script>
@@ -66,14 +54,16 @@
   <div class="help-teaser">
   Press <b>h</b> for help.
   </div>
-  {% block help %}
   <div class="help">
+  {% block help %}
   You can use the 'n' and 'p' keys for navigating forward and backward respectively. You can go to the label index by pressing 'i' or 't'. On a one-image page you can move up to the label index page you came from by pressing the 'u' key. Good luck!
-  </div>
   {% endblock %}
+  </div>
   <div id="content">
- {% block content %}{% endblock %}
-{% block navigation %}
+  {% block content %}
+  {% endblock %}
+  
+  {% block navigation %}
   <div class="navigation">
     {% if previous %}
     <a accesskey="p" href="{{ source }}/{{ previous }}">Previous</a>
@@ -85,10 +75,13 @@
   </div>
   </div>
   {% endblock %}
-
-<center><img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif" alt="Powered by Google App Engine" /></center>
+  
+  <center>
+    <img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif" alt="Powered by Google App Engine" />
+  </center>
   <div id="opensource">
-    <center><a href="http://code.google.com/p/fspotcloud/" >The F-Spot Cloud Project Home</a>
+    <center><a href="http://code.google.com/p/fspotcloud/" >The F-Spot Cloud Project Home
+            </a>
     <center>
   </div>
   </body>
