@@ -1,5 +1,5 @@
 cron:
 - description: Daily import of the tags metadata
   url: /import/
-  schedule: every 1 day
+  schedule: every 24 hours
 
