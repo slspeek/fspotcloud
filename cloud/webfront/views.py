@@ -61,7 +61,7 @@ def tag_page(request, tag_id, page_id):
     row.append(pic_id)
   page_list = get_pages(tag, page_id)
   no_of_pages = ceil_divide(tag.count, NUMBER_OF_PHOTOS)
-  next = page_id + 1 if page_id <= no_of_pages else None
+  next = page_id + 1 if page_id < no_of_pages else None
   previous = page_id -1 if page_id > 1 else None
   return render_to_response('tag.html', 
                             {'pics': table,
