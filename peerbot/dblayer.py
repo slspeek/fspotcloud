@@ -7,6 +7,30 @@ from xmlrpclib import Binary
 
 connection = sqlite.connect('photos.db')
 
+def get_photo_count():
+  cursor = connection.cursor()
+  cursor.execute('SELECT COUNT(photos.id) FROM photos')
+  row = cursor.fetchone()
+  return row[0]
+
+def get_photo_list(offset, limit):
+  """ This gives a list of photo metadata starting at the lowest key """
+  cursor = connection.cursor()
+  cursor.execute('SELECT photos.id, time, uri FROM photos ORDER BY id LIMIT ? OFFSET ? ', (str(limit), str(offset)))
+  result = []
+  for row in cursor:
+    result.append(list(row))
+  for row in result:
+    id = row[0]
+    tag_list = get_tags_for_photo(id)
+    row.append(list(tag_list))
+  return str(result)
+
+def get_tags_for_photo(id):
+  cursor = connection.cursor()
+  cursor.execute('SELECT tag_id, photo_id FROM photo_tags WHERE photo_id=?', (str(id),))
+  return [row[0] for row in cursor]
+
 def get_photo_row(id):
   cursor = connection.cursor()
   id = str(id)
@@ -59,7 +83,10 @@ def main():
   jpeg = get_photo_object(5713, (400,300))
   reader = StringIO.StringIO(jpeg)
   image = Image.open(reader)
-  image.show()
+  #image.show()
+  print get_photo_count()
+  print get_photo_list(0, 3)
+  print get_photo_list(9000,10)
 
 if __name__ == "__main__":
       main()

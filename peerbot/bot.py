@@ -2,7 +2,8 @@
 import xmlrpclib
 import time
 import logging
-from botworker import push_tags, push_photo, push_tag_data
+from botworker import push_tags, push_photo
+from botworker import push_tag_data, push_photo_count
 from config import SERVER_URL
 
 s = xmlrpclib.ServerProxy(SERVER_URL)
