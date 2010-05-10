@@ -10,7 +10,7 @@ def push_photo_count():
 
 def push_photo_data(offset, limit):
   photo_list = dblayer.get_photo_list(offset, limit)
-  return str(photo_list)
+  s.recieve_photo_data(str(photo_list))
 
 def push_tag_data(id, offset, limit):
   photo_list = dblayer.get_photo_list_for_tag(id, offset, limit)

@@ -39,6 +39,10 @@ class Photo(db.Expando):
       prev = None
     return (prev, next)
 
+  def set_tag(this, tag_id):
+    setattr(this, 'tag' + tag_id, True)
+
+
 class Tag(BaseModel):
   category_id = db.StringProperty('Parent Tag')
   name = db.StringProperty('Name')
@@ -206,6 +210,22 @@ def save_image(photo_id, jpeg, type=LARGE, tag_id=None):
   logging.info("Stored photo %s with key %s of type %s" % (photo_id, photo_key, type))
   return 0
 
+def recieve_photo_data(data_string):
+  data = eval(data_string)
+  for photo_data in data:
+    save_photo(photo_data)
+
+def save_photo(photo_data):
+  photo_id = photo_data[0]
+  photo = Photo.get_or_insert(key_name=str(photo_id))
+  photo.desc = photo_data[1]
+  time = photo_data[2]
+  photo.time = datetime.fromtimestamp(time)
+  tag_list = photo_data[3]
+  for tag_id in tag_list:
+    photo.set_tag(tag_id)
+  photo.put()
+  
 def ajax_get_tag_progress(request):
   from google.appengine.api import users
   user = users.get_current_user()

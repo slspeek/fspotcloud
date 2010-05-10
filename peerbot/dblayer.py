@@ -16,7 +16,7 @@ def get_photo_count():
 def get_photo_list(offset, limit):
   """ This gives a list of photo metadata starting at the lowest key """
   cursor = connection.cursor()
-  cursor.execute('SELECT photos.id, time, uri FROM photos ORDER BY id LIMIT ? OFFSET ? ', (str(limit), str(offset)))
+  cursor.execute('SELECT photos.id, description, time FROM photos ORDER BY id LIMIT ? OFFSET ? ', (str(limit), str(offset)))
   result = []
   for row in cursor:
     result.append(list(row))
@@ -86,6 +86,7 @@ def main():
   #image.show()
   print get_photo_count()
   print get_photo_list(0, 3)
+  print get_photo_list(100, 3)
   print get_photo_list(9000,10)
 
 if __name__ == "__main__":
