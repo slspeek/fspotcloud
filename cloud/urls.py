@@ -13,15 +13,12 @@
 # limitations under the License.
 
 from django.conf.urls.defaults import *
-from webfront.models import save_image, save_tag, has_image, handle_photo_for_tag
+from webfront.models import save_image, save_tag, has_image, handle_photo_for_tag, recieve_photo_count, recieve_photo_data
 from webfront.command import get_command
 from webfront.rpcserver import XMLRPC
 
-def test(arg):
-  logging.info(str(arg))
-
 rpcserver = XMLRPC()
-for func in [save_image, has_image, save_tag, get_command, handle_photo_for_tag, test]:
+for func in [save_image, has_image, save_tag, get_command, handle_photo_for_tag, recieve_photo_count, recieve_photo_data]:
   rpcserver.register(func)
 
 urlpatterns = patterns('',
@@ -43,6 +40,7 @@ urlpatterns = patterns('',
   (r'^retrieve/(?P<photo_id>\d+)/(?P<type>\d)$', 'webfront.tasks.retrieve'),
   (r'^ping/$','webfront.views.ping_page'),
   (r'^ping_cron/$','webfront.tasks.ping_cron'),
+  (r'^cron/schedule_update/$','webfront.tasks.schedule_update'),
   (r'^ajax/progress/$', 'webfront.models.ajax_get_tag_progress'),
   (r'^ajax/photo_at/$', 'webfront.models.ajax_photo_at'),
   url(r'^xmlrpc/$', rpcserver.view, name="xmlrpc"),

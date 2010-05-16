@@ -45,7 +45,7 @@ class XMLRPC(object):
     result = isinstance(result, tuple) and result or (result,)
     result = strip_spaces_between_tags(dumps(result, methodresponse=True))
     if error_occured:
-      logging.info("RPCSERVER fault: %s" % result)
+      logging.error("RPCSERVER fault: %s" % result)
     response = HttpResponse(mimetype="text/xml")
     response.write(result)
     response["Content-Length"] = len(response.content)

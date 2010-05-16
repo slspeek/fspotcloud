@@ -4,11 +4,13 @@ from config import SERVER_URL, BIG_DIM, THUMB_DIM
 
 s = xmlrpclib.ServerProxy(SERVER_URL)
 
-def push_photo_count():
+def send_photo_count():
+  print 'Send photo count'
   count = dblayer.get_photo_count()
-  s.set_photo_count()
+  s.recieve_photo_count(count)
 
-def push_photo_data(offset, limit):
+def send_photo_data(offset, limit):
+  print 'Send photo data'
   photo_list = dblayer.get_photo_list(offset, limit)
   s.recieve_photo_data(str(photo_list))
 

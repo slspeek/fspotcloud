@@ -3,3 +3,6 @@ cron:
   url: /import/
   schedule: every 24 hours
 
+- description: Daily import of the photos metadata
+  url: /cron/schedule_update/
+  schedule: every 24 hours
