@@ -13,17 +13,18 @@
 # limitations under the License.
 
 from django.conf.urls.defaults import *
-from webfront.models import save_image, save_tag, has_image, handle_photo_for_tag, recieve_photo_count, recieve_photo_data
+from webfront.peerreciever import recieve_image, recieve_tag, handle_photo_for_tag, recieve_photo_count, recieve_photo_data
 from webfront.command import get_command
 from webfront.rpcserver import XMLRPC
 
 rpcserver = XMLRPC()
-for func in [save_image, has_image, save_tag, get_command, handle_photo_for_tag, recieve_photo_count, recieve_photo_data]:
+for func in [recieve_image, recieve_tag, get_command, handle_photo_for_tag, recieve_photo_count, recieve_photo_data]:
   rpcserver.register(func)
 
 urlpatterns = patterns('',
   (r'^cloud/$', 'webfront.views.index'),
   (r'^import/$', 'webfront.models.import_tags'),
+  (r'^task/schedule_photo_data_requests/(?P<start>\d+)/(?P<count>\d+)$', 'webfront.peerreciever.schedule_photo_data_requests'),
   (r'^import/(?P<tag_id>\d+)$', 'webfront.models.import_tag_data'),
   (r'^import_tag/(?P<tag_id>\d+)/(?P<offset>\d+)/(?P<limit>\d+)$', 'webfront.models.import_tag_data_part'),
   (r'^tag/(?P<tag_id>\d+)/(?P<page_id>\d+)$', 'webfront.views.tag_page'),

@@ -144,16 +144,6 @@ def import_tags(request):
   schedule('push_tags', [])
   return HttpResponse('The tags import is given to control')
 
-def save_tag(id, name, category, count):
-  logging.info("Entering save_tag: %s %s %s" % (id, name, category))
-  t = Tag.get_or_insert(str(id))
-  t.name = name
-  t.category_id = str(category)
-  t.count = count
-  t.list_loaded = False
-  t.put()
-  return 0
-
 def import_tag_data(request, tag_id):
   tag = Tag.get_by_key_name(str(tag_id))
   part_count = calculate_part_count(tag)
@@ -170,23 +160,6 @@ def import_tag_data(request, tag_id):
 def calculate_part_count(tag):
   no_of_parts = ceil_divide(tag.count, MAX_FETCH)
   return no_of_parts
-
-def handle_photo_for_tag(id, time, desc, tag_id):
-  logging.debug('handle_photo')
-  tag = Tag.get_by_key_name(str(tag_id))
-  p = Photo.get_or_insert(str(id))
-  p.time = datetime.fromtimestamp(time)
-  p.desc = desc
-  p.put()
-  tag.loaded_count += 1
-  tag.put()
-  if not has_image(id, THUMB):
-    schedule('push_photo', map(str, [id, THUMB, tag_id]))
-  if not has_image(id, LARGE):
-    schedule('push_photo', map(str, [id, LARGE, tag_id]))
-  else:
-    tag.addPhoto(p)
-  return 0
 
 """ @tracer """
 def load_image(photo_id, type):
@@ -205,19 +178,6 @@ def has_image(photo_id, type):
   if type == LARGE:
     return bool(image.jpeg)
   return bool(image.thumb)
-
-def save_image(photo_id, jpeg, type=LARGE, tag_id=None):
-  photo = Photo.get_or_insert(key_name=str(photo_id))
-  photo_data = db.Blob(jpeg.data)
-  if type == LARGE:
-    tag = Tag.get_by_key_name(str(tag_id)) 
-    photo.jpeg = photo_data
-    tag.addPhoto(photo)
-  else: 
-    photo.thumb = photo_data
-  photo_key = photo.put()
-  logging.info("Stored photo %s with key %s of type %s" % (photo_id, photo_key, type))
-  return 0
 
 def recieve_photo_data(data_string):
   logging.info('In recieve_photo_data')

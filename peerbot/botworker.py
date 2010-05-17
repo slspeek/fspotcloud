@@ -22,11 +22,11 @@ def push_tag_data(id, offset, limit):
 def push_photo(id, type, tag_id):
   dim = THUMB_DIM if type == "2" else BIG_DIM
   jpeg = dblayer.get_photo_object(id, dim)
-  print s.save_image(int(id), jpeg, type, tag_id)
+  print s.recieve_image(int(id), jpeg, type, tag_id)
 
 def push_tags():
   for tag in dblayer.get_tag_list():
-    s.save_tag(*tag)
+    s.recieve_tag(*tag)
 
 def main():
   pass
