@@ -42,13 +42,17 @@ def handle_photo_for_tag(id, time, desc, tag_id):
   return 0
 
 def recieve_tag(id, name, category, count):
-  logging.info("Entering recieve_tag: %s %s %s" % (id, name, category))
+  logging.info("Entering recieve_tag: %s %s %s %s" % (id, name, category, count))
   t = Tag.get_or_insert(str(id))
   t.name = name
   t.category_id = str(category)
   t.count = count
   t.list_loaded = False
   t.put()
+  if t.import_issued:
+    logging.info('schedulinh')
+    schedule_image_requests_for_tag(None, id, THUMB, 0, count)
+    schedule_image_requests_for_tag(None, id, LARGE, 0, count)
   return 0
 
 def recieve_photo_data(data_string):
@@ -97,3 +101,31 @@ def schedule_photo_data_requests(request, start, count):
     beginning = start + i * MAX_FETCH
     schedule('send_photo_data', [str(beginning), str(MAX_FETCH)])
   return HttpResponse('OK')
+
+def schedule_image_requests_for_tag(request, tag_id, type, start, count):
+  tag_id = str(tag_id)
+  start, count = int(start), int(count)
+  all_photos_query = Photo.all().filter("tag%s =" % tag_id, True)
+  image_filter = "jpeg =" if type == LARGE else "thumb ="
+  if count > MAX_FETCH:
+    next_start, next_count  = start + MAX_FETCH, count - MAX_FETCH
+    url = "/task/schedule_image_requests_for_tag/%s/%s/%s/%s" % (tag_id,
+                                                                type,
+                                                                next_start,
+                                                                next_count)
+    task = Task(url=url)
+    logging.info(url)
+    task.add(queue_name='background-processing')
+  # Do our part of the job, scheduling the head
+  images_missing = all_photos_query.filter(image_filter, None).fetch(MAX_FETCH)
+  for photo in images_missing:
+    id = photo.key().name()
+    schedule('push_photo', [id, type])
+
+  return HttpResponse('OK')
+
+  
+  
+
+
+

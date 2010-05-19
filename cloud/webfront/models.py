@@ -165,57 +165,20 @@ def calculate_part_count(tag):
 def load_image(photo_id, type):
   if not has_image(photo_id, type):
     schedule('push_photo', [photo_id, type, tag_id])
-  image = memcache.get(photo_id)
-  if image == None:
-    image = Photo.get_by_key_name(photo_id)
-    memcache.set(photo_id, image, 60)
-  return image
+  photo = memcache.get(photo_id)
+  if photo == None:
+    photo = Photo.get_by_key_name(photo_id)
+    memcache.set(photo_id, photo, 60)
+  return photo
 
 def has_image(photo_id, type):
-  image = Photo.get_by_key_name(str(photo_id))
-  if image == None:
+  photo = Photo.get_by_key_name(str(photo_id))
+  if photo == None:
     return False
   if type == LARGE:
-    return bool(image.jpeg)
-  return bool(image.thumb)
+    return bool(photo.jpeg)
+  return bool(photo.thumb)
 
-def recieve_photo_data(data_string):
-  logging.info('In recieve_photo_data')
-  data = eval(data_string)
-  for photo_data in data:
-    logging.info('In recieve_photo_data %s' % photo_data)
-    save_photo(photo_data)
-  return 0
-
-def save_photo(photo_data):
-  photo_id = photo_data[0]
-  photo = Photo.get_or_insert(key_name=str(photo_id))
-  photo.desc = photo_data[1]
-  time = photo_data[2]
-  photo.time = datetime.fromtimestamp(time)
-  tag_list = photo_data[3]
-  for tag_id in tag_list:
-    #logging.info('In save_photo %s' % tag_id)
-    photo.set_tag(tag_id)
-  photo.put()
-
-def recieve_photo_count(count):
-  count = int(count)
-  pd = get_default_PB()
-  previous_count = pd.count
-  pd.count = int(count)
-  pd.put()
-  need_to_load = count - previous_count 
-  task_count = ceil_divide(need_to_load, MAX_FETCH)
-  meta_task_count = ceil_divide(task_count, MAX_FETCH)
-  logging.info("Task count: %s" % task_count)
-  for i in range(0, task_count):
-    start = previous_count + i * MAX_FETCH
-    schedule('send_photo_data', [str(start), str(MAX_FETCH)])
-  return 0
-
-def schedule_total_import(request):
-  pass
 def ajax_get_tag_progress(request):
   from google.appengine.api import users
   user = users.get_current_user()
