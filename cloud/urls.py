@@ -13,12 +13,12 @@
 # limitations under the License.
 
 from django.conf.urls.defaults import *
-from webfront.peerreciever import recieve_image, recieve_tag, handle_photo_for_tag, recieve_photo_count, recieve_photo_data
+from webfront.peerreciever import recieve_image, recieve_tag, recieve_photo_count, recieve_photo_data
 from webfront.command import get_command
 from webfront.rpcserver import XMLRPC
 
 rpcserver = XMLRPC()
-for func in [recieve_image, recieve_tag, get_command, handle_photo_for_tag, recieve_photo_count, recieve_photo_data]:
+for func in [recieve_image, recieve_tag, get_command, recieve_photo_count, recieve_photo_data]:
   rpcserver.register(func)
 
 urlpatterns = patterns('',

@@ -49,7 +49,8 @@ def tag_page(request, tag_id, page_id):
   tag = Tag.get_by_key_name(tag_id)
   start = (page_id - 1) * NUMBER_OF_PHOTOS
   end = start + NUMBER_OF_PHOTOS
-  photos = tag.photo_list[start:end]
+  photos_count = Photo.all().filter('tag%s =' % tag_id, True).count()
+  photos = [p.key().name() for p in Photo.all().filter('tag%s =' % tag_id, True).fetch(NUMBER_OF_PHOTOS, start)]
   table = []
   bigimage_urls = []
   for cnt, pic_id in enumerate(photos):
@@ -60,7 +61,7 @@ def tag_page(request, tag_id, page_id):
       table.append(row)
     row.append(pic_id)
   page_list = get_pages(tag, page_id)
-  no_of_pages = ceil_divide(tag.count, NUMBER_OF_PHOTOS)
+  no_of_pages = ceil_divide(photos_count, NUMBER_OF_PHOTOS)
   next = page_id + 1 if page_id < no_of_pages else None
   previous = page_id -1 if page_id > 1 else None
   return render_to_response('tag.html', 

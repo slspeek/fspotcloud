@@ -11,34 +11,15 @@ import logging
 from webfront.models import MAX_FETCH, MAX_DELETE, LARGE, THUMB
 from webfront.models import Photo, Tag, get_default_PB
 
-def recieve_image(photo_id, jpeg, type=LARGE, tag_id=None):
+def recieve_image(photo_id, jpeg, type=LARGE):
   photo = Photo.get_or_insert(key_name=str(photo_id))
   photo_data = db.Blob(jpeg.data)
   if type == LARGE:
-    tag = Tag.get_by_key_name(str(tag_id)) 
     photo.jpeg = photo_data
-    tag.addPhoto(photo)
   else: 
     photo.thumb = photo_data
   photo_key = photo.put()
   logging.info("Stored photo %s with key %s of type %s" % (photo_id, photo_key, type))
-  return 0
-
-def handle_photo_for_tag(id, time, desc, tag_id):
-  logging.debug('handle_photo')
-  tag = Tag.get_by_key_name(str(tag_id))
-  p = Photo.get_or_insert(str(id))
-  p.time = datetime.fromtimestamp(time)
-  p.desc = desc
-  p.put()
-  tag.loaded_count += 1
-  tag.put()
-  if not has_image(id, THUMB):
-    schedule('push_photo', map(str, [id, THUMB, tag_id]))
-  if not has_image(id, LARGE):
-    schedule('push_photo', map(str, [id, LARGE, tag_id]))
-  else:
-    tag.addPhoto(p)
   return 0
 
 def recieve_tag(id, name, category, count):

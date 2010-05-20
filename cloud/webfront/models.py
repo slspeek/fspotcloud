@@ -12,7 +12,7 @@ from google.appengine.runtime import DeadlineExceededError
 from tracer import tracer
 import logging
 
-MAX_FETCH = 50
+MAX_FETCH = 25
 MAX_DELETE = 200
 
 LARGE = "1"
@@ -34,18 +34,21 @@ class Photo(db.Expando):
   desc = db.StringProperty('Description')
 
   def neighbours(this, tag):
+    #photo_list = tag.photo_list
+    tag_id = tag.key().name()
     photo_list = tag.photo_list
-    key_name = this.key().name()
-    index = photo_list.index(key_name)
-    if index < len(photo_list) - 1: # we have a next
-      next = photo_list[index + 1]
+    next_photo = Photo.all().filter('tag%s =' % tag_id, True).filter('time >', this.time).fetch(1)
+    if not next_photo == None:
+      next = next_photo.key().name()
     else:
       next = None
-    if index > 0:
-      prev = photo_list[index - 1]
+    prev_photo = Photo.all().filter('tag%s =' % tag_id, True).filter('time <', this.time).fetch(1)
+    if not prev_photo == None:
+      prev = prev_photo.key().name()
     else:
       prev = None
     return (prev, next)
+
 
   def set_tag(this, tag_id):
     tag_id = str(tag_id)
@@ -77,6 +80,14 @@ class Tag(BaseModel):
       this.photo_list.append(key)
     this.put() 
     
+def import_tag_data(request, tag_id):
+  tag = Tag.get_by_key_name(str(tag_id))
+  tag.import_issued = True
+  tag.put()
+  msg = '/tag_load/%s' % tag.key().name()
+  logging.info(msg)
+  return HttpResponseRedirect(msg)
+
 def set_color(request, tag_id, color):
   tag = Tag.get_by_key_name(str(tag_id))
   tag.color = color
@@ -124,7 +135,7 @@ def clear_photo(request, photo_id):
 
 def clear_all_photo(request=None):
   try:
-    for p in  Photo.all().fetch(MAX_DELETE):
+    for p in  Photo.all().fetch(MAX_FETCH):
       msg = "Deleted photo: %s" % p.key().name()
       p.delete()
       logging.debug(msg)
@@ -144,27 +155,10 @@ def import_tags(request):
   schedule('push_tags', [])
   return HttpResponse('The tags import is given to control')
 
-def import_tag_data(request, tag_id):
-  tag = Tag.get_by_key_name(str(tag_id))
-  part_count = calculate_part_count(tag)
-  for part in range(0, part_count):
-    offset = part * MAX_FETCH
-    limit = MAX_FETCH
-    schedule('push_tag_data', map(str,[tag_id, offset, limit]))
-  tag.import_issued = True
-  tag.put()
-  msg = '/tag_load/%s' % tag.key().name()
-  logging.info(msg)
-  return HttpResponseRedirect(msg)
-
-def calculate_part_count(tag):
-  no_of_parts = ceil_divide(tag.count, MAX_FETCH)
-  return no_of_parts
-
 """ @tracer """
 def load_image(photo_id, type):
   if not has_image(photo_id, type):
-    schedule('push_photo', [photo_id, type, tag_id])
+    schedule('push_photo', [photo_id, type])
   photo = memcache.get(photo_id)
   if photo == None:
     photo = Photo.get_by_key_name(photo_id)
