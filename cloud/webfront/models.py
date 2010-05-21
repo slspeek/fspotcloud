@@ -38,11 +38,19 @@ class Photo(db.Expando):
     tag_id = tag.key().name()
     photo_list = tag.photo_list
     next_photo = Photo.all().filter('tag%s =' % tag_id, True).filter('time >', this.time).fetch(1)
+    if len(next_photo) > 0:
+      next_photo = next_photo[0]
+    else:
+      next_photo = None
     if not next_photo == None:
       next = next_photo.key().name()
     else:
       next = None
     prev_photo = Photo.all().filter('tag%s =' % tag_id, True).filter('time <', this.time).fetch(1)
+    if len(prev_photo) > 0:
+      prev_photo = prev_photo[0]
+    else:
+      prev_photo = None
     if not prev_photo == None:
       prev = prev_photo.key().name()
     else:
