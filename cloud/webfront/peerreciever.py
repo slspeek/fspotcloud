@@ -58,7 +58,11 @@ def save_photo(photo_data):
 
 def recieve_photo_count(count):
   count = int(count)
-  previous_count = Photo.all().count()
+  #previous_count = Photo.all().count()
+  pd = get_default_PB()
+  previous_count = pd.count
+  pd.count = count
+  pd.put()
   need_to_load = count - previous_count 
   schedule_photo_data_requests(None, previous_count, need_to_load)
   return 0

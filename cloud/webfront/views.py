@@ -50,7 +50,7 @@ def tag_page(request, tag_id, page_id):
   start = (page_id - 1) * NUMBER_OF_PHOTOS
   end = start + NUMBER_OF_PHOTOS
   photos_count = Photo.all().filter('tag%s =' % tag_id, True).count()
-  photos = [p.key().name() for p in Photo.all().filter('tag%s =' % tag_id, True).fetch(NUMBER_OF_PHOTOS, start)]
+  photos = [p.key().name() for p in Photo.all().filter('tag%s =' % tag_id, True).order('time').fetch(NUMBER_OF_PHOTOS, start)]
   table = []
   bigimage_urls = []
   for cnt, pic_id in enumerate(photos):
