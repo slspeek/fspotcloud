@@ -1,0 +1,1 @@
+A description of all gradle and maven projects that constitute F-Spot Cloud
